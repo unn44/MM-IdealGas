@@ -50,8 +50,9 @@
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
         </ApplicationDefinition>
-        <Compile Include="Components\ArrToBitmap.cs" />
-        <Compile Include="Components\Figures.cs" />
+        <Compile Include="GraphicComponents\ArrToBitmap.cs" />
+        <Compile Include="GraphicComponents\Figures.cs" />
+        <Compile Include="PhysicalComponents\Particle.cs" />
         <Compile Include="Properties\Annotations.cs" />
         <Compile Include="RelayCommand.cs" />
         <Compile Include="ViewModel.cs" />

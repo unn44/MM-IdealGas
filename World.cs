@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Media.Imaging;
 using MM_IdealGas.Components;
+using MM_IdealGas.PhysicalComponents;
 
 namespace MM_IdealGas
 {
@@ -36,9 +39,13 @@ namespace MM_IdealGas
         /// </summary>
         private int _lastInW, _lastInH;
         /// <summary>
+        /// Равновесное расстояние в мировых координатах (т.е. с учетом шага)
+        /// </summary>
+        private readonly int _worldA;
+        /// <summary>
         /// Радиус одной частицы в мире (т.е. с учетом шага)
         /// </summary>
-        private int _particleRadius;
+        private readonly int _particleRadius;
         /// <summary>
         /// Текущий кадр мира
         /// </summary>
@@ -46,14 +53,26 @@ namespace MM_IdealGas
         /// <summary>
         /// Количество частиц (задается пользователем с окна)
         /// </summary>
-        private int _particles;
+        private readonly int _particlesQuantity;
+        /// <summary>
+        /// Отступ для равновесного расстояния между частицами при начальной генерации
+        /// (может быть изменено пользователем в диапазоне от 0,85 до 0,9)
+        /// </summary>
+        private double _margin = 0.9;
+        /// <summary>
+        /// Координаты центров всех существующих точек в мире.
+        /// </summary>
+        private List<Particle> _particles;
 
-        public World(int particles)
+        public World(int particlesQuantity)
         {
-            _particles = particles;
+            _particlesQuantity = particlesQuantity;
+            _worldA = (int) (A * CoordStep);
             _particleRadius = (int) (A / 2.0 * CoordStep);
             _wFrame = CreateWorldFrame();
         }
+
+        public void SetMargin(double margin) => _margin = margin;
 
         private double[,] CreateWorldFrame()
         {
@@ -61,21 +80,50 @@ namespace MM_IdealGas
             _worldH = (int)Math.Ceiling(A * CellH * CoordStep);
             _lastInW = _worldW - 1;
             _lastInH = _worldH - 1;
-            return new double[_worldW,_worldH];
+            var arr = new double[_worldW,_worldH];
+            for (var x = 0; x < _worldW; x ++) arr[x, 0] = arr[x, _lastInH] = 0.5;
+            for (var y = 0; y < _worldH; y ++) arr[0, y] = arr[_lastInW, y] = 0.5;
+            return arr;
+        }
+
+        private static int SqrtDistance(int x1, int y1, int x2, int y2)
+        {
+            return (int) Math.Ceiling(Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
+        }
+
+        public void GenerateInitState()
+        {
+            _particles = new List<Particle>();
+            var rnd = new Random();
+            var particlesNow = 0; // количество сгенерированных частиц
+            
+            // минимальное допустимое расстояние между частицами:
+            var dist = (int) Math.Ceiling(_margin * _worldA + _particleRadius*2);
+            // + _particleRadius*2 - так как расчёт между центрами, то необходимо учесть радиус у обеих частиц
+            
+            // минимальное допустимое расстояние от границ:
+            var distBoard = (int) Math.Ceiling(_margin * _worldA / 2.0 + _particleRadius); 
+            // (_margin * _worldA) / 2.0 - для того, чтобы шары у противоположных границ тоже оказывались на таком расстоянии
+            // + _particleRadius - так как расчёт между центром и границей, то достаточно учесть радиус только у одной частицы
+            
+            while (true)
+            {
+                var shit = false; // если true, то точку на выброс
+                var x = rnd.Next(distBoard, _worldW - distBoard);
+                var y = rnd.Next(distBoard, _worldH - distBoard);
+                foreach (var unused in _particles.Where(par => SqrtDistance(par.X, par.Y, x, y) < dist))
+                {
+                    shit = true;
+                }
+                if (shit) continue;
+                _particles.Add(new Particle(x, y)); // запомни
+                _wFrame = Figures.AddCircle(x, y, _particleRadius, _wFrame); // построй
+                if (++particlesNow == _particlesQuantity) break;
+            }
         }
 
         public BitmapSource GetStaticFrame()
         {
-            /* Обводка границы кадра -> Вынести в отдельную функцию CreateFrame? */
-            for (var x = 0; x < _worldW; x ++) _wFrame[x, 0] = _wFrame[x, _lastInH] = 0.5;
-            for (var y = 0; y < _worldH; y ++) _wFrame[0, y] = _wFrame[_lastInW, y] = 0.5;
-            /* */
-            
-            /* !! Это должно считаться в отдельной функции !! Здесь добавление границ? и чисто отрисовка */
-            _wFrame = Figures.AddCircle(_particleRadius, _particleRadius, _particleRadius, _wFrame);
-            _wFrame = Figures.AddCircle(_lastInW - _particleRadius, _lastInH - _particleRadius, _particleRadius, _wFrame);
-            /* */
-            
             var arrToBitmap = new ArrToBitmap(_wFrame);
             return arrToBitmap.getBitmapInverted();
         }

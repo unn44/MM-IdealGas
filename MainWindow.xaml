@@ -5,19 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MM_IdealGas"
         mc:Ignorable="d"
-        Title="MainWindow" Height="400" Width="600">
+        Title="2D Ideal gas" Height="400" Width="600">
     <Window.DataContext>
         <local:ViewModel />
     </Window.DataContext>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
         <Image Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Source="{Binding Frame}"/>
         <StackPanel Grid.Column="1">
-            <TextBox Text="{Binding Particles, UpdateSourceTrigger=PropertyChanged}"/>
-            <Button Content="Сгенерировать" Command="{Binding Generate}"></Button>
+            <Label Content="Количество частиц"/>
+            <TextBox Text="{Binding Particles, UpdateSourceTrigger=LostFocus}"/>
+            <Label Content="Коэф. для расстояния между част."/>
+            <TextBox Text="{Binding Margin, UpdateSourceTrigger=LostFocus}"/>
+            <Button Content="Сгенерировать" Command="{Binding Generate}" Margin="0,10,0,0"></Button>
         </StackPanel>
     </Grid>
 </Window>

@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using MM_IdealGas.Annotations;
+using MM_IdealGas.PhysicalComponents;
 
 namespace MM_IdealGas
 {
@@ -17,20 +18,22 @@ namespace MM_IdealGas
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private World _world;
+        public int Particles { get; set; } = 40;
         public ICommand Generate { get; set; }
         public ViewModel()
         {
             Generate = new RelayCommand(o =>
             {
-                world = new World(Particles);
+                _world = new World(Particles);
+                _world.SetMargin(Margin);
+                _world.GenerateInitState();
                 OnPropertyChanged(nameof(Frame));
             });
         }
-        
-        World world = new World(30);
 
-        public BitmapSource Frame => world.GetStaticFrame();
+        public BitmapSource Frame => _world.GetStaticFrame();
 
-        public int Particles { get; set; }
+        public double Margin { get; set; } = 0.9;
     }
 }
