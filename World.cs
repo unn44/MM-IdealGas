@@ -60,13 +60,18 @@ namespace MM_IdealGas
         /// </summary>
         private double _margin = 0.9;
         /// <summary>
+        /// Максимальная начальная скорость частицы.
+        /// </summary>
+        private double _maxU0;
+        /// <summary>
         /// Координаты центров всех существующих точек в мире.
         /// </summary>
         private List<Particle> _particles;
 
-        public World(int particlesQuantity)
+        public World(int particlesQuantity, double maxU0)
         {
             _particlesQuantity = particlesQuantity;
+            _maxU0 = maxU0;
             _worldA = (int) (A * CoordStep);
             _particleRadius = (int) (A / 2.0 * CoordStep);
             _wFrame = CreateWorldFrame();
@@ -89,6 +94,13 @@ namespace MM_IdealGas
         private static int SqrtDistance(int x1, int y1, int x2, int y2)
         {
             return (int) Math.Ceiling(Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
+        }
+
+        private double GenerateInitVel()
+        {
+            var rnd = new Random();
+            // надо [0,1], но NextDouble() дает [0,1), но да ладно :)
+            return (-1 + 2 * rnd.NextDouble()) * _maxU0;
         }
 
         public void GenerateInitState()
@@ -116,7 +128,7 @@ namespace MM_IdealGas
                     shit = true;
                 }
                 if (shit) continue;
-                _particles.Add(new Particle(x, y)); // запомни
+                _particles.Add(new Particle(x, y, GenerateInitVel(), GenerateInitVel())); // запомни
                 _wFrame = Figures.AddCircle(x, y, _particleRadius, _wFrame); // построй
                 if (++particlesNow == _particlesQuantity) break;
             }

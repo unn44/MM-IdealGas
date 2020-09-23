@@ -25,7 +25,7 @@ namespace MM_IdealGas
         {
             Generate = new RelayCommand(o =>
             {
-                _world = new World(Particles);
+                _world = new World(Particles, MaxU0);
                 _world.SetMargin(Margin);
                 _world.GenerateInitState();
                 OnPropertyChanged(nameof(Frame));
@@ -35,5 +35,8 @@ namespace MM_IdealGas
         public BitmapSource Frame => _world.GetStaticFrame();
 
         public double Margin { get; set; } = 0.9;
+
+        public double MaxU0 { get; set; } = 1.0;
+
     }
 }
