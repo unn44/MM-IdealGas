@@ -18,26 +18,22 @@ namespace MM_IdealGas
         /// </summary>
         private const double D = 0.0103;
         /// <summary>
-        /// Реальная ширина ячейки (без учета А и шага)
+        /// Реальная ширина / высота ячейки (без учета А и шага)
         /// </summary>
-        private const int CellW = 30;
-        /// <summary>
-        /// Реальная высота ячейки (без учета А и шага)
-        /// </summary>
-        private const int CellH = 30;
+        private const int CellSize = 30;
         /// <summary>
         /// Шаг по координатам (т.е. сколько точек в реальной единице)
         /// </summary>
         private const int CoordStep = 50; // не мало ли? но если больше, возникают проблемы с отображением
-        
+
         /// <summary>
-        /// Общее количество точек мира
+        /// Общее количество точек мира по одной оси (ширине или высоте)
         /// </summary>
-        private int _worldW, _worldH;
+        private int _worldSize;
         /// <summary>
-        /// Последние точки мира
+        /// Последние точки мира (по ширине / высоте)
         /// </summary>
-        private int _lastInW, _lastInH;
+        private int _lastIndex;
         /// <summary>
         /// Равновесное расстояние в мировых координатах (т.е. с учетом шага)
         /// </summary>
@@ -81,13 +77,11 @@ namespace MM_IdealGas
 
         private double[,] CreateWorldFrame()
         {
-            _worldW = (int)Math.Ceiling(A * CellW * CoordStep);
-            _worldH = (int)Math.Ceiling(A * CellH * CoordStep);
-            _lastInW = _worldW - 1;
-            _lastInH = _worldH - 1;
-            var arr = new double[_worldW,_worldH];
-            for (var x = 0; x < _worldW; x ++) arr[x, 0] = arr[x, _lastInH] = 0.5;
-            for (var y = 0; y < _worldH; y ++) arr[0, y] = arr[_lastInW, y] = 0.5;
+            _worldSize = (int)Math.Ceiling(A * CellSize * CoordStep);
+            _lastIndex = _worldSize - 1;
+            var arr = new double[_worldSize,_worldSize];
+            for (var n = 0; n < _worldSize; n ++) arr[n, 0] = arr[n, _lastIndex] =
+                arr[0, n] = arr[_lastIndex, n] = 0.5;
             return arr;
         }
 
@@ -121,8 +115,8 @@ namespace MM_IdealGas
             while (true)
             {
                 var shit = false; // если true, то точку на выброс
-                var x = rnd.Next(distBoard, _worldW - distBoard);
-                var y = rnd.Next(distBoard, _worldH - distBoard);
+                var x = rnd.Next(distBoard, _worldSize - distBoard);
+                var y = rnd.Next(distBoard, _worldSize - distBoard);
                 foreach (var unused in _particles.Where(par => SqrtDistance(par.X, par.Y, x, y) < dist))
                 {
                     shit = true;
