@@ -5,19 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MM_IdealGas"
         mc:Ignorable="d"
-        Title="2D Ideal gas" Height="400" Width="600">
-    <Window.DataContext>
-        <local:ViewModel />
-    </Window.DataContext>
+        Title="2D Ideal gas" Height="900" Width="900">
+   
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
-        <Image Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Source="{Binding Frame}"/>
-        <StackPanel Grid.Column="1">
+		<ItemsControl  ItemsSource="{Binding Particles,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<Canvas  />
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+
+			<ItemsControl.ItemContainerStyle>
+				<Style TargetType="ContentPresenter">
+					<Setter Property="Canvas.Left" Value="{Binding  X , Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+					<Setter Property="Canvas.Top" Value="{Binding  Y, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+				</Style>
+			</ItemsControl.ItemContainerStyle>
+
+			<ItemsControl.ItemTemplate>
+				<DataTemplate>
+					<Ellipse Fill="Red"   Width="10" Height="10" />
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+
+		</ItemsControl>
+		<StackPanel Grid.Column="1">
             <Label Content="Количество частиц"/>
-            <TextBox Text="{Binding Particles, UpdateSourceTrigger=LostFocus}"/>
+            <TextBox Text="{Binding CountParticles, UpdateSourceTrigger=LostFocus}"/>
             <Label Content="Коэф. для расстояния между част."/>
             <TextBox Text="{Binding Margin, UpdateSourceTrigger=LostFocus}"/>
             <Label Content="Максимальная Uo"/>

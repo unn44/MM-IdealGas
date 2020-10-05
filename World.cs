@@ -1,13 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.ObjectModel;
 using System.Windows.Media.Imaging;
 using MM_IdealGas.Components;
 using MM_IdealGas.PhysicalComponents;
 
 namespace MM_IdealGas
 {
-    public class World
+	public class World
     {
         /// <summary>
         /// Равновесное расстояние между центрами атомов (нм).
@@ -62,7 +62,7 @@ namespace MM_IdealGas
         /// <summary>
         /// Координаты центров всех существующих точек в мире.
         /// </summary>
-        private List<Particle> _particles;
+        private ObservableCollection<Particle> _particles;
 
         public World(int particlesQuantity, double maxU0)
         {
@@ -96,10 +96,16 @@ namespace MM_IdealGas
             // надо [0,1], но NextDouble() дает [0,1), но да ладно :)
             return (-1 + 2 * rnd.NextDouble()) * _maxU0;
         }
+		public ObservableCollection<Particle> GetParticles() => _particles;
+
+        public void SetParticles(ObservableCollection<Particle> particles)
+		{
+            _particles = particles;
+		}
 
         public void GenerateInitState()
         {
-            _particles = new List<Particle>();
+            _particles = new ObservableCollection<Particle>();
             var rnd = new Random();
             var particlesNow = 0; // количество сгенерированных частиц
             
