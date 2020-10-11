@@ -42,8 +42,10 @@ namespace MM_IdealGas
 		{
 			Generate = new RelayCommand(o =>
 			{
-				_world = new World(CountParticles, MaxU0);
+				_world = new World();
 				_world.SetMargin(Margin);
+				_world.SetParticlesQuantity(CountParticles);
+				_world.SetMaxInitVel(MaxU0);
 				_world.GenerateInitState();
 				Particles = _world.GetParticles();
 				OnPropertyChanged();

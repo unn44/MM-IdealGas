@@ -12,68 +12,81 @@ namespace MM_IdealGas
         /// <summary>
         /// Равновесное расстояние между центрами атомов (нм).
         /// </summary>
-        private const double A = 0.382;
+        protected const double A = 0.382;
         /// <summary>
         /// Модуль потенц. энергии взаимодействия между атомами при равновесии (эВ). 
         /// </summary>
-        private const double D = 0.0103;
+        protected const double D = 0.0103;
         /// <summary>
         /// Реальная ширина / высота ячейки (без учета А и шага)
         /// </summary>
-        private const int CellSize = 30;
+        protected const int CellSize = 30;
         /// <summary>
         /// Шаг по координатам (т.е. сколько точек в реальной единице)
         /// </summary>
-        private const int CoordStep = 50; // не мало ли? но если больше, возникают проблемы с отображением
+        protected const int CoordStep = 50; // не мало ли? но если больше, возникают проблемы с отображением
 
         /// <summary>
         /// Общее количество точек мира по одной оси (ширине или высоте)
         /// </summary>
-        private int _worldSize;
+        protected int _worldSize;
         /// <summary>
         /// Последние точки мира (по ширине / высоте)
         /// </summary>
-        private int _lastIndex;
+        protected int _lastIndex;
         /// <summary>
         /// Равновесное расстояние в мировых координатах (т.е. с учетом шага)
         /// </summary>
-        private readonly int _worldA;
+        protected readonly int _worldA;
         /// <summary>
         /// Радиус одной частицы в мире (т.е. с учетом шага)
         /// </summary>
-        private readonly int _particleRadius;
+        protected readonly int _particleRadius;
         /// <summary>
         /// Текущий кадр мира
         /// </summary>
-        private double[,] _wFrame;
+        protected double[,] _wFrame;
         /// <summary>
         /// Количество частиц (задается пользователем с окна)
         /// </summary>
-        private readonly int _particlesQuantity;
+        protected int _particlesQuantity;
         /// <summary>
         /// Отступ для равновесного расстояния между частицами при начальной генерации
         /// (может быть изменено пользователем в диапазоне от 0,85 до 0,9)
         /// </summary>
-        private double _margin = 0.9;
+        protected double _margin = 0.9;
         /// <summary>
         /// Максимальная начальная скорость частицы.
         /// </summary>
-        private double _maxU0;
+        protected double _maxU0;
         /// <summary>
         /// Координаты центров всех существующих точек в мире.
         /// </summary>
-        private ObservableCollection<Particle> _particles;
+        protected ObservableCollection<Particle> _particles;
+        
+        /// <summary>
+        /// Радиусы обрезания.
+        /// </summary>
+        private double _r1, _r2;
+        /// <summary>
+        /// Шаг по времени.
+        /// </summary>
+        private double _deltaT;
+        /// <summary>
+        /// Масса частицы.
+        /// </summary>
+        private double _m;
 
-        public World(int particlesQuantity, double maxU0)
+        public World()
         {
-            _particlesQuantity = particlesQuantity;
-            _maxU0 = maxU0;
             _worldA = (int) (A * CoordStep);
             _particleRadius = (int) (A / 2.0 * CoordStep);
             _wFrame = CreateWorldFrame();
         }
 
         public void SetMargin(double margin) => _margin = margin;
+        public void SetParticlesQuantity(int particlesQuantity) => _particlesQuantity = particlesQuantity;
+        public void SetMaxInitVel(double maxU0) => _maxU0 = maxU0;
 
         private double[,] CreateWorldFrame()
         {
