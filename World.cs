@@ -67,15 +67,15 @@ namespace MM_IdealGas
         /// <summary>
         /// Радиусы обрезания.
         /// </summary>
-        private double _r1, _r2;
+        protected double _r1, _r2;
         /// <summary>
         /// Шаг по времени.
         /// </summary>
-        private double _deltaT;
+        protected double _deltaT;
         /// <summary>
         /// Масса частицы.
         /// </summary>
-        private double _m;
+        protected double _m;
 
         public World()
         {
@@ -98,7 +98,7 @@ namespace MM_IdealGas
             return arr;
         }
 
-        private static int SqrtDistance(int x1, int y1, int x2, int y2)
+        protected static int SqrtDistance(int x1, int y1, int x2, int y2)
         {
             return (int) Math.Ceiling(Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
         }
