@@ -5,17 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MM_IdealGas"
         mc:Ignorable="d"
-        Title="2D Ideal gas" Height="900" Width="900">
-   
+        Title="2D Ideal gas" Height="650" Width="850">
+   <Window.DataContext>
+	   <local:ViewModel/>
+   </Window.DataContext>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
-		<ItemsControl  ItemsSource="{Binding Particles,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
+		<ItemsControl ItemsSource="{Binding Particles,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
-					<Canvas  />
+					<Canvas/>
 				</ItemsPanelTemplate>
 			</ItemsControl.ItemsPanel>
 

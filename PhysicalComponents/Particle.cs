@@ -8,9 +8,6 @@ namespace MM_IdealGas.PhysicalComponents
 
     public class Particle : INotifyPropertyChanged
 	{
-
-
-
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		[NotifyPropertyChangedInvocator]
@@ -48,10 +45,10 @@ namespace MM_IdealGas.PhysicalComponents
 		/// </summary>
         public double Ux, Uy;
 
-		public Particle(int x1, int y1, double ux, double uy)
+		public Particle(int x, int y, double ux, double uy)
         {
-            X = x1;
-            Y = y1;
+            X = x;
+            Y = y;
             Ux = ux;
             Uy = uy;
         }
