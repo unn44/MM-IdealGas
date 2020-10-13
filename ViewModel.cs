@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -24,18 +25,16 @@ namespace MM_IdealGas
 
 		public int CountParticles { get; set; } = 50;
 		public ICommand Generate { get; set; }
-		private ObservableCollection<Particle> particles;
+		public ICommand Start { get; set; }
+		private ObservableCollection<Particle> _particles;
 		public ObservableCollection<Particle> Particles
 		{
-			get
-			{
-				return particles;
-			}
+			get => _particles;
 
 			set
 			{
-			particles=value;
-				OnPropertyChanged();
+			_particles=value;
+			OnPropertyChanged();
 			}
 		}
 		public ViewModel()
@@ -44,20 +43,40 @@ namespace MM_IdealGas
 			_world.SetMargin(Margin);
 			_world.SetParticlesQuantity(CountParticles);
 			_world.SetMaxInitVel(MaxU0);
+			_world.SetR1R2(R1,R2);
+			_world.SetMass(Mass);
+			_world.SetTimeParams(DeltaT, TCounts);
 			_world.GenerateInitState();
 			Particles = _world.GetParticles();
 		
 			Generate = new RelayCommand(o =>
 			{
-				_world.DoStep();
+				_world = new PhysFuncs();
+				_world.SetMargin(Margin);
+				_world.SetParticlesQuantity(CountParticles);
+				_world.SetMaxInitVel(MaxU0);
+				_world.GenerateInitState();
 				Particles = _world.GetParticles();
-				OnPropertyChanged();
+			});
+			Start = new RelayCommand(o =>
+			{
+				for (var i = 0; i < TCounts; i++)
+				{
+					_world.DoStep();
+					Particles = _world.GetParticles();
+					OnPropertyChanged();
+					Thread.Sleep(10);
+				}
 			});
 		}
 
 		public double Margin { get; set; } = 0.9;
 
 		public double MaxU0 { get; set; } = 1.0;
-
+		public double R1 { get; set; } = 1.1;
+		public double R2 { get; set; } = 1.8;
+		public double Mass { get; set; } = 39.948;
+		public double DeltaT { get; set; } = 0.1;
+		public int TCounts { get; set; } = 200;
 	}
 }
