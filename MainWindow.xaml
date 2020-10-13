@@ -42,6 +42,18 @@
             <TextBox Text="{Binding Margin, UpdateSourceTrigger=LostFocus}"/>
             <Label Content="Максимальная Uo"/>
             <TextBox Text="{Binding MaxU0, UpdateSourceTrigger=LostFocus}"/>
+            
+            <Label Content="Радиус обрезания: R1"/> 
+            <TextBox Text="{Binding MaxU0, UpdateSourceTrigger=LostFocus}"/>
+            <Label Content="Радиус обрезания: R2"/>
+            <TextBox Text="{Binding MaxU0, UpdateSourceTrigger=LostFocus}"/>
+            <Label Content="Масса частицы"/>
+            <TextBox Text="{Binding MaxU0, UpdateSourceTrigger=LostFocus}"/>
+            <Label Content="Шаг по времени"/>
+            <TextBox Text="{Binding MaxU0, UpdateSourceTrigger=LostFocus}"/>
+            <Label Content="Количество шагов по времени"/>
+            <TextBox Text="{Binding MaxU0, UpdateSourceTrigger=LostFocus}"/>
+            
             <Button Content="Сгенерировать" Command="{Binding Generate}" Margin="0,10,0,0"></Button>
         </StackPanel>
     </Grid>

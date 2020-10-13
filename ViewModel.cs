@@ -22,7 +22,7 @@ namespace MM_IdealGas
 		private World _world;
 
 
-		public int CountParticles { get; set; } = 90;
+		public int CountParticles { get; set; } = 50;
 		public ICommand Generate { get; set; }
 		private ObservableCollection<Particle> particles;
 		public ObservableCollection<Particle> Particles

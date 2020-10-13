@@ -76,6 +76,10 @@ namespace MM_IdealGas
         /// Масса частицы.
         /// </summary>
         protected double _m;
+        /// <summary>
+        /// Количество шагов по времени.
+        /// </summary>
+        protected int _tCount;
 
         public World()
         {
@@ -87,6 +91,17 @@ namespace MM_IdealGas
         public void SetMargin(double margin) => _margin = margin;
         public void SetParticlesQuantity(int particlesQuantity) => _particlesQuantity = particlesQuantity;
         public void SetMaxInitVel(double maxU0) => _maxU0 = maxU0;
+        public void SetR1R2(double r1, double r2)
+        {
+            _r1 = r1;
+            _r2 = r2;
+        }
+        public void SetTimeParams(double deltaT, int tCount)
+        {
+            _deltaT = deltaT;
+            _tCount = tCount;
+        }
+        public void SetMass(double m) => _m = m;
 
         private double[,] CreateWorldFrame()
         {
