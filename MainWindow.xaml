@@ -17,7 +17,7 @@
 		<ItemsControl ItemsSource="{Binding Particles,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
-					<Canvas/>
+					<Canvas Background="AliceBlue" HorizontalAlignment="Left" VerticalAlignment="Top" Width="600" Height="600"/>
 				</ItemsPanelTemplate>
 			</ItemsControl.ItemsPanel>
 

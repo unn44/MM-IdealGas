@@ -19,7 +19,7 @@ namespace MM_IdealGas
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		private World _world;
+		private PhysFuncs _world;
 
 
 		public int CountParticles { get; set; } = 90;
@@ -40,13 +40,16 @@ namespace MM_IdealGas
 		}
 		public ViewModel()
 		{
+			_world = new PhysFuncs();
+			_world.SetMargin(Margin);
+			_world.SetParticlesQuantity(CountParticles);
+			_world.SetMaxInitVel(MaxU0);
+			_world.GenerateInitState();
+			Particles = _world.GetParticles();
+		
 			Generate = new RelayCommand(o =>
 			{
-				_world = new World();
-				_world.SetMargin(Margin);
-				_world.SetParticlesQuantity(CountParticles);
-				_world.SetMaxInitVel(MaxU0);
-				_world.GenerateInitState();
+				_world.DoStep();
 				Particles = _world.GetParticles();
 				OnPropertyChanged();
 			});
