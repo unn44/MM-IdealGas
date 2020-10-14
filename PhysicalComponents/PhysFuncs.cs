@@ -6,14 +6,11 @@ namespace MM_IdealGas.PhysicalComponents
     public class PhysFuncs : World
     {
         private readonly List<double> _fXk, _fYk;
-        private readonly int _worldR1, _worldR2;
 
         public PhysFuncs()
         {
             _fXk = new List<double>();
             _fYk = new List<double>();
-            _worldR1 = (int) (_r1 * CoordStep);
-            _worldR2 = (int) (_r2 * CoordStep);
         }
         
         public void DoStep()
@@ -31,6 +28,8 @@ namespace MM_IdealGas.PhysicalComponents
                 particle.Ux = NextVel(i, 1);
                 particle.Uy = NextVel(i++, 2);
             }
+            _fXk.Clear();
+            _fYk.Clear();
         }
         
         public void RunDynamic()
@@ -135,14 +134,18 @@ namespace MM_IdealGas.PhysicalComponents
                         else if (sqrtCheck2 < _worldR1) kMulty = 1;
                         else
                         {
-                            sqrtR2 = SqrtBoardDistance(mainX, mainY, par.X, par.Y,2);
-                            sqrtCheck2 = SqrtBoardDistanceCheck(mainX, mainY, par.X, par.Y,2);
+                            sqrtR2 = SqrtBoardDistance(mainX, mainY, par.X, par.Y, 2);
+                            sqrtCheck2 = SqrtBoardDistanceCheck(mainX, mainY, par.X, par.Y, 2);
                             if (_worldR1 <= sqrtCheck2 && sqrtCheck2 <= _worldR2)
                             {
                                 kMulty = Math.Pow(1.0 - Math.Pow((sqrtR2 - _r1) / (_r1 - _r2), 2), 2);
                             }
                             else if (sqrtCheck2 < _worldR1) kMulty = 1;
-                            else continue; // k = 0, упрощение вычислений для процессора
+                            else
+                            {
+                                i++;
+                                continue;
+                            } // k = 0, упрощение вычислений для процессора
                         }
                     }
                 }

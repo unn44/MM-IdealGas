@@ -80,12 +80,21 @@ namespace MM_IdealGas
         /// Количество шагов по времени.
         /// </summary>
         protected int _tCount;
+        /// <summary>
+        /// 
+        /// </summary>
+        protected int _worldR1, _worldR2;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        private readonly Random rnd;
         public World()
         {
             _worldA = (int) (A * CoordStep);
             _particleRadius = (int) (A / 2.0 * CoordStep);
             _wFrame = CreateWorldFrame();
+            rnd =new Random();
         }
 
         public void SetMargin(double margin) => _margin = margin;
@@ -95,6 +104,8 @@ namespace MM_IdealGas
         {
             _r1 = r1;
             _r2 = r2;
+            _worldR1 = (int) (_r1 * CoordStep);
+            _worldR2 = (int) (_r2 * CoordStep);
         }
         public void SetTimeParams(double deltaT, int tCount)
         {
@@ -120,7 +131,6 @@ namespace MM_IdealGas
 
         private double GenerateInitVel()
         {
-            var rnd = new Random();
             // надо [0,1], но NextDouble() дает [0,1), но да ладно :)
             return (-1 + 2 * rnd.NextDouble()) * _maxU0;
         }
@@ -134,7 +144,6 @@ namespace MM_IdealGas
         public void GenerateInitState()
         {
             _particles = new ObservableCollection<Particle>();
-            var rnd = new Random();
             var particlesNow = 0; // количество сгенерированных частиц
             
             // минимальное допустимое расстояние между частицами:
