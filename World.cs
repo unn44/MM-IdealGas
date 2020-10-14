@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
 using System.Collections.ObjectModel;
-using System.Windows.Media.Imaging;
-using MM_IdealGas.Components;
 using MM_IdealGas.PhysicalComponents;
 
 namespace MM_IdealGas
@@ -62,7 +60,7 @@ namespace MM_IdealGas
         /// <summary>
         /// Координаты центров всех существующих точек в мире.
         /// </summary>
-        protected ObservableCollection<Particle> _particles;
+        protected ObservableCollection<ParticleOld> _particles;
         
         /// <summary>
         /// Радиусы обрезания.
@@ -134,16 +132,16 @@ namespace MM_IdealGas
             // надо [0,1], но NextDouble() дает [0,1), но да ладно :)
             return (-1 + 2 * rnd.NextDouble()) * _maxU0;
         }
-		public ObservableCollection<Particle> GetParticles() => _particles;
+		public ObservableCollection<ParticleOld> GetParticles() => _particles;
 
-        public void SetParticles(ObservableCollection<Particle> particles)
+        public void SetParticles(ObservableCollection<ParticleOld> particles)
 		{
             _particles = particles;
 		}
 
         public void GenerateInitState()
         {
-            _particles = new ObservableCollection<Particle>();
+            _particles = new ObservableCollection<ParticleOld>();
             var particlesNow = 0; // количество сгенерированных частиц
             
             // минимальное допустимое расстояние между частицами:
@@ -165,16 +163,9 @@ namespace MM_IdealGas
                     shit = true;
                 }
                 if (shit) continue;
-                _particles.Add(new Particle(x, y, GenerateInitVel(), GenerateInitVel())); // запомни
-                _wFrame = Figures.AddCircle(x, y, _particleRadius, _wFrame); // построй
+                _particles.Add(new ParticleOld(x, y, GenerateInitVel(), GenerateInitVel())); // запомни
                 if (++particlesNow == _particlesQuantity) break;
             }
-        }
-
-        public BitmapSource GetStaticFrame()
-        {
-            var arrToBitmap = new ArrToBitmap(_wFrame);
-            return arrToBitmap.getBitmapInverted();
         }
     }
 }

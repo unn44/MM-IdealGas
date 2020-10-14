@@ -5,7 +5,8 @@ using System.Runtime.CompilerServices;
 
 namespace MM_IdealGas.PhysicalComponents
 {
-	public class Particle : INotifyPropertyChanged
+
+    public class ParticleOld : INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -14,25 +15,25 @@ namespace MM_IdealGas.PhysicalComponents
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
-		private double x=0, y=0;
-		/// <summary>
-		/// Координата X частицы.
-		/// </summary>
-		public double X
+		private int x=0, y=0;
+		public int X
 		{
-			get => x;
+			get
+			{
+				return x;
+			}
 			set
 			{
 				x = value;
 				OnPropertyChanged();
 			}
 		}
-		/// <summary>
-		/// Координата Y частицы.
-		/// </summary>
-		public double Y
+		public int Y
 		{
-			get => y;
+			get
+			{
+				return y;
+			}
 			set
 			{
 				y = value;
@@ -44,7 +45,7 @@ namespace MM_IdealGas.PhysicalComponents
 		/// </summary>
         public double Ux, Uy;
 
-		public Particle(double x, double y, double ux, double uy)
+		public ParticleOld(int x, int y, double ux, double uy)
         {
             X = x;
             Y = y;

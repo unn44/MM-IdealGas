@@ -65,9 +65,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="GraphicComponents\ArrToBitmap.cs" />
-    <Compile Include="GraphicComponents\Figures.cs" />
     <Compile Include="PhysicalComponents\Particle.cs" />
+    <Compile Include="PhysicalComponents\ParticleOld.cs" />
     <Compile Include="PhysicalComponents\PhysFuncs.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="RelayCommand.cs" />

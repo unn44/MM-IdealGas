@@ -28,8 +28,8 @@ namespace MM_IdealGas
 		public int CountParticles { get; set; } = 50;
 		public ICommand Generate { get; set; }
 		public ICommand Start { get; set; }
-		private ObservableCollection<Particle> _particles;
-		public ObservableCollection<Particle> Particles
+		private ObservableCollection<ParticleOld> _particles;
+		public ObservableCollection<ParticleOld> Particles
 		{
 			get => _particles;
 
