@@ -25,15 +25,7 @@ namespace MM_IdealGas
 		private PhysFuncs _world;
 
 
-		private double deltaT = 1.0;
-
-		private double margin = 0.9;
-
-		private double maxU0 = 1.0;
-		private double r1 = 1.1;
-		private double r2 = 1.8;
-		private double mass = 39.948;
-		private int countParticles = 50;
+		public int CountParticles { get; set; } = 50;
 		public ICommand Generate { get; set; }
 		public ICommand Start { get; set; }
 		private ObservableCollection<Particle> _particles;
@@ -43,42 +35,20 @@ namespace MM_IdealGas
 
 			set
 			{
-				_particles = value;
-				OnPropertyChanged(nameof(Particles));
+			_particles=value;
+			OnPropertyChanged(nameof(Particles));
 			}
 		}
 		public ViewModel()
 		{
 			_world = new PhysFuncs();
-			_world.SetMargin(Margin);
-			_world.SetParticlesQuantity(CountParticles);
-			_world.SetMaxInitVel(MaxU0);
-			_world.SetR1R2(R1, R2);
-			_world.SetMass(Mass);
-			_world.SetTimeParams(DeltaT, TCounts);
-			_world.GenerateInitState();
+			Initializer();
 			Particles = _world.GetParticles();
-
-			Generate = new RelayCommand(o =>
-			{
-				_world = new PhysFuncs();
-				_world.SetMargin(Margin);
-				_world.SetParticlesQuantity(CountParticles);
-				_world.SetMaxInitVel(MaxU0);
-				_world.SetR1R2(R1, R2);
-				_world.SetMass(Mass);
-				_world.SetTimeParams(DeltaT, TCounts);
-				_world.GenerateInitState();
-				Particles = _world.GetParticles();
-			});
+		
+			Generate = new RelayCommand(o => Initializer());
 			Start = new RelayCommand(o =>
 			{
-				/*for (var i = 0; i < TCounts; i++)
-				{
-					_world.DoStep();
-					Particles = _world.GetParticles();
-
-				}*/
+				Initializer(true);
 				SetTimer();
 			});
 		}
@@ -99,71 +69,25 @@ namespace MM_IdealGas
 			Particles = _world.GetParticles();
 		}
 
-		public double Margin
+		private void Initializer(bool noGenerate = false)
 		{
-			get => margin;
-			set
-			{
-				margin = value;
-				OnPropertyChanged();
-			}
+			_world.SetMargin(Margin);
+			_world.SetParticlesQuantity(CountParticles);
+			_world.SetMaxInitVel(MaxU0);
+			_world.SetR1R2(R1,R2);
+			_world.SetMass(Mass);
+			_world.SetTimeParams(DeltaT, TCounts);
+			if (noGenerate) return;
+			_world.GenerateInitState();
+			Particles = _world.GetParticles();
 		}
-
-		public double MaxU0
-		{
-			get => maxU0;
-			set
-			{
-				maxU0 = value;
-				OnPropertyChanged();
-			}
-		}
-		public double R1
-		{
-			get => r1;
-			set
-			{
-				r1 = value;
-				OnPropertyChanged();
-			}
-		}
-		public double R2
-		{
-			get => r2;
-			set
-			{
-				r2 = value;
-				OnPropertyChanged();
-			}
-		}
-		public double Mass
-		{
-			get => mass;
-			set
-			{
-				mass = value;
-				OnPropertyChanged();
-			}
-		}
-		public int CountParticles
-		{
-			get => countParticles;
-			set
-			{
-				countParticles = value;
-				OnPropertyChanged();
-			}
-		}
-		public double DeltaT
-		{
-			get => deltaT;
-
-			set
-			{
-				deltaT = value;
-				OnPropertyChanged(nameof(DeltaT));
-			}
-		}
+		
+		public double Margin { get; set; } = 0.9;
+		public double MaxU0 { get; set; } = 1.0;
+		public double R1 { get; set; } = 1.1;
+		public double R2 { get; set; } = 1.8;
+		public double Mass { get; set; } = 39.948;
+		public double DeltaT { get; set; } = 1.0;
 		public int TCounts { get; set; } = 200;
 	}
 }
