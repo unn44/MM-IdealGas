@@ -60,7 +60,7 @@ namespace MM_IdealGas
         /// <summary>
         /// Координаты центров всех существующих точек в мире.
         /// </summary>
-        protected ObservableCollection<ParticleOld> _particles;
+        protected ObservableCollection<ParticleOld> _particles; //!!!!!!!!!
         
         /// <summary>
         /// Радиусы обрезания.
