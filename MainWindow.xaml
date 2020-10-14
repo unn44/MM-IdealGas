@@ -50,7 +50,7 @@
             <Label Content="Масса частицы"/>
             <TextBox Text="{Binding Mass, UpdateSourceTrigger=LostFocus}"/>
             <Label Content="Шаг по времени"/>
-            <TextBox Text="{Binding DeltaT, UpdateSourceTrigger=LostFocus}"/>
+            <TextBox Text="{Binding DeltaT, UpdateSourceTrigger =PropertyChanged, Mode=TwoWay}"/>
             <Label Content="Количество шагов по времени"/>
             <TextBox Text="{Binding TCounts, UpdateSourceTrigger=LostFocus}"/>
             
