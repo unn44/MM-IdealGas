@@ -43,7 +43,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// <summary>
         /// Максимальная начальная скорость частицы при начальной генерации (м/с).
         /// </summary>
-        public double U0MaxInit { get; set; } = 1.0;
+        public double U0MaxInit { get; set; } = 1e-9;
         /// <summary>
         /// Масса частицы (а. ед. м.).
         /// </summary>
