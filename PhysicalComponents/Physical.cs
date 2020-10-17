@@ -11,13 +11,19 @@ namespace MM_IdealGas.PhysicalComponents
     {
         #region Поля класса, константы и логика инициализации
         /// <summary>
+        /// Множитель, "убирающий" лишние нули из СИ величин, обеспечивающий тем самым увеличение точности вычислений.
+        /// </summary>
+        private const double MachineMultiplier = 1e9;
+        
+        
+        /// <summary>
         /// Равновесное расстояние между центрами атомов (м).
         /// </summary>
-        private const double A = 0.382e-9;
+        private const double A = 0.382 * 1e-9 * MachineMultiplier;
         /// <summary>
         /// Модуль потенц. энергии взаимодействия между атомами при равновесии (Дж). 
         /// </summary>
-        private const double D = 0.0103 * 1.6e-19; // 0.0103 эВ переведены в Дж
+        private const double D = 0.0103 * MachineMultiplier * 1.6e-19; // 0.0103 эВ переведены в Дж
         /// <summary>
         /// Ширина / высота квадрата (ед.).
         /// </summary>
@@ -30,55 +36,40 @@ namespace MM_IdealGas.PhysicalComponents
         /// Радиус одной частицы (м).
         /// </summary>
         private const double ParticleRadius = A / 2.0;
+        /// <summary>
+        /// Масса частицы (кг).
+        /// </summary>
+        private const double Mass = 39.948 * MachineMultiplier * 1.66054e-27; // 39.948 а.е.м. переведены в кг
         
         /// <summary>
         /// Общее количество частиц.
         /// </summary>
-        public int ParticleNumber { get; set; } = 50;
-        /// <summary>
-        /// Отступ для равновесного расстояния между частицами при начальной генерации (ед.).
-        /// (диапазон = 0,85 - 0,9)
-        /// </summary>
-        public static double MarginInit { get; set; } = 0.9;
-        /// <summary>
-        /// Максимальная начальная скорость частицы при начальной генерации (м/с).
-        /// </summary>
-        public double U0MaxInit { get; set; } = 1e-9;
-        /// <summary>
-        /// Масса частицы (кг).
-        /// </summary>
-        public double Mass { get; set; } = 39.948 * 1.66054e-27; // 39.948 а.е.м. переведены в кг
-        /// <summary>
-        /// Шаг по времени (с).
-        /// </summary>
-        public double TimeDelta { get; set; } = 2e-14;
-        /// <summary>
-        /// Количество шагов по времени.
-        /// </summary>
-        public int TimeCounts { get; set; } = 500;
-        /// <summary>
-        /// Коэффициент для радиуса обрезания R1 (ед.).
-        /// (диапазон = 1,1 - 1,2)
-        /// </summary>
-        public static double CoeffR1 { get; set; } = 1.1;
-        /// <summary>
-        /// Коэффициент для радиуса обрезания R2 (ед.).
-        /// (диапазон = 1,7 - 1,8)
-        /// </summary>
-        public static double CoeffR2 { get; set; } = 1.8;
-        /// <summary>
-        /// Радиус обрезания R1 (м).
-        /// </summary>
-        private double _r1 = CoeffR1 * A;
-        /// <summary>
-        /// Радиус обрезания R2 (м).
-        /// </summary>
-        private double _r2 = CoeffR2 * A;
+        private int _particleNumber = 50;
         /// <summary>
         /// Равновесное расстояние между частицами при начальной генерации (м).
         /// </summary>
-        private double _marginInit = MarginInit * A;
-        
+        private double _marginInit;
+        /// <summary>
+        /// Максимальная начальная скорость частицы при начальной генерации (м/с).
+        /// </summary>
+        private double _u0MaxInit = 1e-9;
+        /// <summary>
+        /// Шаг по времени (с).
+        /// </summary>
+        private double _timeDelta = 2e-14;
+        /// <summary>
+        /// Количество шагов по времени.
+        /// </summary>
+        private int _timeCounts = 500;
+        /// <summary>
+        /// Радиус обрезания R1 (м).
+        /// </summary>
+        private double _r1;
+        /// <summary>
+        /// Радиус обрезания R2 (м).
+        /// </summary>
+        private double _r2;
+
         /// <summary>
         /// Коллекция всех частиц в исследуемой ячейке.
         /// Содержит: координаты X,Y центра частицы, текущую скорость частицы (Ux, Uy).
@@ -123,7 +114,7 @@ namespace MM_IdealGas.PhysicalComponents
         private double RandomParticleU0()
         {
             // надо [0,1], но NextDouble() дает [0,1), но и ладно :)
-            return (-1 + 2 * _rnd.NextDouble()) * U0MaxInit;
+            return (-1 + 2 * _rnd.NextDouble()) * _u0MaxInit;
         }
         /// <summary>
         /// Сгенерировать начальную координату по одной проекции для одной частицы.
@@ -223,7 +214,7 @@ namespace MM_IdealGas.PhysicalComponents
             var velK = direction==1 ? _particles[index].Ux : _particles[index].Uy; //скорость на текущем шаге.
             forceK = ForceForOneParticle(index, direction);
             
-            return coordK + velK * TimeDelta + forceK * TimeDelta * TimeDelta / (2*Mass);
+            return coordK + velK * _timeDelta + forceK * _timeDelta * _timeDelta / (2*Mass);
         }
         /// <summary>
         /// Рассчитать скорость по одной проекции частицы на следующем шаге по времени.
@@ -237,9 +228,31 @@ namespace MM_IdealGas.PhysicalComponents
             var velK = direction==1 ? _particles[index].Ux : _particles[index].Uy; //скорость на текущем шаге.
             var forceK1 = ForceForOneParticle(index, direction); //сила на следующем временном шаге.
             
-            return velK + (forceK1 + forceK) * TimeDelta / (2*Mass);
+            return velK + (forceK1 + forceK) * _timeDelta / (2*Mass);
         }
         #endregion
+        
+        /// <summary>
+        /// Проинициализировать или обновить все доступные поля класса.
+        /// </summary>
+        /// <param name="particleNumber">Общее количество частиц.</param>
+        /// <param name="marginInit">Отступ для равновесного расстояния между частицами при начальной генерации (ед.). (диапазон = 0,85 - 0,9)</param>
+        /// <param name="u0MaxInit">Максимальная начальная скорость частицы при начальной генерации (м/с).</param>
+        /// <param name="timeDelta">Шаг по времени (с).</param>
+        /// <param name="timeCounts">Количество шагов по времени.</param>
+        /// <param name="coeffR1">Коэффициент для радиуса обрезания R1 (ед.). (диапазон = 1,1 - 1,2)</param>
+        /// <param name="coeffR2">Коэффициент для радиуса обрезания R2 (ед.). (диапазон = 1,7 - 1,8)</param>
+        public void InitAll( int particleNumber, double marginInit, double u0MaxInit, 
+            double timeDelta, int timeCounts, double coeffR1, double coeffR2)
+        {
+            _particleNumber = particleNumber;
+            _marginInit = marginInit * A;
+            _u0MaxInit = u0MaxInit * MachineMultiplier;
+            _timeDelta = timeDelta * MachineMultiplier;
+            _timeCounts = timeCounts;
+            _r1 = coeffR1 * A;
+            _r2 = coeffR2 * A;
+        }
         
         /// <summary>
         /// Расположить частицы в ячейку и сохранить их положения и начальные скорости в коллекцию. 
@@ -264,7 +277,7 @@ namespace MM_IdealGas.PhysicalComponents
                 }
                 if (trashPnt) continue;
                 _particles.Add(new Particle(x, y, RandomParticleU0(), RandomParticleU0()));
-                if (++particlesNow == ParticleNumber) break;
+                if (++particlesNow == _particleNumber) break;
             }
         }
         /// <summary>
@@ -288,7 +301,7 @@ namespace MM_IdealGas.PhysicalComponents
         public void CalcAllTimeSteps()
         {
             _allParticles = new ObservableCollection<ObservableCollection<Particle>> {_particles};
-            for (var i = 0; i < TimeCounts; i++)
+            for (var i = 0; i < _timeCounts; i++)
             {
                 DoTimeStep();
                 _allParticles.Add(_particles);
