@@ -11,9 +11,9 @@ namespace MM_IdealGas.PhysicalComponents
     {
         #region Поля класса, константы и логика инициализации
         /// <summary>
-        /// Равновесное расстояние между центрами атомов (нм).
+        /// Равновесное расстояние между центрами атомов (м).
         /// </summary>
-        private const double A = 0.382;
+        private const double A = 0.382e-9;
         /// <summary>
         /// Модуль потенц. энергии взаимодействия между атомами при равновесии (эВ). 
         /// </summary>
@@ -23,11 +23,11 @@ namespace MM_IdealGas.PhysicalComponents
         /// </summary>
         private const int SquareSize = 30;
         /// <summary>
-        /// Ширина / высота исследуемой ячейки (нм).
+        /// Ширина / высота исследуемой ячейки (м).
         /// </summary>
         private const double CellSize = SquareSize * A;
         /// <summary>
-        /// Радиус одной частицы (нм).
+        /// Радиус одной частицы (м).
         /// </summary>
         private const double ParticleRadius = A / 2.0;
         
@@ -67,15 +67,15 @@ namespace MM_IdealGas.PhysicalComponents
         /// </summary>
         public static double CoeffR2 { get; set; } = 1.8;
         /// <summary>
-        /// Радиус обрезания R1 (нм).
+        /// Радиус обрезания R1 (м).
         /// </summary>
         private double _r1 = CoeffR1 * A;
         /// <summary>
-        /// Радиус обрезания R2 (нм).
+        /// Радиус обрезания R2 (м).
         /// </summary>
         private double _r2 = CoeffR2 * A;
         /// <summary>
-        /// Равновесное расстояние между частицами при начальной генерации (нм).
+        /// Равновесное расстояние между частицами при начальной генерации (м).
         /// </summary>
         private double _marginInit = MarginInit * A;
         
@@ -111,7 +111,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// <param name="y1">Координата Y первой частицы.</param>
         /// <param name="x2">Координата X второй частицы.</param>
         /// <param name="y2">Координата Y второй частицы.</param>
-        /// <returns>Квадрат расстояния между центрами двух частиц (нм).</returns>
+        /// <returns>Квадрат расстояния между центрами двух частиц (м).</returns>
         private static double SqrtDistance(double x1, double y1, double x2, double y2)
         {
             return Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
@@ -129,7 +129,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// Сгенерировать начальную координату по одной проекции для одной частицы.
         /// </summary>
         /// <param name="marginBorder">Минимальное расстояние от границ.</param>
-        /// <returns>Случайная координата частицы (нм).</returns>
+        /// <returns>Случайная координата частицы (м).</returns>
         private double RandomParticleXY0(double marginBorder=0.0)
         {
             return marginBorder + _rnd.NextDouble() * (CellSize - 2*marginBorder); //2*marginBorder из-за минимума и отступа от конца CellSize
@@ -138,7 +138,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// Обеспечить нахождение координаты по одной проекции в границах ячейки.
         /// </summary>
         /// <param name="coord">Координата частицы по одной проекции.</param>
-        /// <returns>Координата частицы, точно находящаяся в границах ячейки (нм).</returns>
+        /// <returns>Координата частицы, точно находящаяся в границах ячейки (м).</returns>
         private double BorderChecker(double coord)
         {
             if (coord < 0) return coord + CellSize;
@@ -150,7 +150,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// </summary>
         /// <param name="x1">Координата X(Y) первой частицы.</param>
         /// <param name="x2">Координата X(Y) второй частицы.</param>
-        /// <returns>Разность координат (нм).</returns>
+        /// <returns>Разность координат (м).</returns>
         private double DxyThroughBorder(double x1, double x2)
         {
             var dx = x1 - x2;
@@ -164,7 +164,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// <param name="y1">Координата Y первой частицы.</param>
         /// <param name="x2">Координата X второй частицы.</param>
         /// <param name="y2">Координата Y второй частицы.</param>
-        /// <returns>Квадрат расстояния между центрами двух частиц (нм).</returns>
+        /// <returns>Квадрат расстояния между центрами двух частиц (м).</returns>
         private double SmartDistance(double x1, double y1, double x2, double y2)
         {
             var dx = DxyThroughBorder(x1, x2);
@@ -175,7 +175,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// Посчитать значение К функции.
         /// </summary>
         /// <param name="r">Расстояние между центрами взаимодействующих частиц.</param>
-        /// <returns>Результат выполнения К функции (нм).</returns>
+        /// <returns>Результат выполнения К функции (м).</returns>
         private double FuncK(double r)
         {
             if (r < _r1) return 1;
@@ -216,7 +216,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// <param name="index">Индекс частицы, для которой будет производиться расчёт, из общего списка частиц.</param>
         /// <param name="direction">Направление в плоскости (проекция): 1 = X, 2 = Y.</param>
         /// <param name="forceK">Переменная для записи силы на текущем шаге по времени (для расчёта скорости).</param>
-        /// <returns>Координата по одной проекции частицы на следующем шаге по времени (??=конфликт:нм^м/с).</returns>
+        /// <returns>Координата по одной проекции частицы на следующем шаге по времени (м/с).</returns>
         private double CoordinateNext(int index, int direction, ref double forceK)
         {
             var coordK = direction==1 ? _particles[index].X : _particles[index].Y; //координата на текущем шаге.
@@ -299,7 +299,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// Может быть использована для отображения результатов расчётов вне класса (например, построение в GUI).
         /// </summary>
         /// <returns>Коллекция, содержащая коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
-        /// Координаты - нм; Скорости - м/с.</returns>
+        /// Координаты - м; Скорости - м/с.</returns>
         public ObservableCollection<ObservableCollection<Particle>> GetParticlesCollection() => _allParticles;
     }
 }
