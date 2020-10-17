@@ -103,13 +103,13 @@ namespace MM_IdealGas.PhysicalComponents
         #endregion
         #region Auxiliary functions
         /// <summary>
-        /// Расчёт квадрата расстояния между центрами двух частиц. 
+        /// Рассчитать квадрат расстояния между центрами двух частиц. 
         /// </summary>
         /// <param name="x1">Координата X первой частицы.</param>
         /// <param name="y1">Координата Y первой частицы.</param>
         /// <param name="x2">Координата X второй частицы.</param>
         /// <param name="y2">Координата Y второй частицы.</param>
-        /// <returns>Квадрат расстояния между центрами двух частиц (нм)</returns>
+        /// <returns>Квадрат расстояния между центрами двух частиц (нм).</returns>
         private static double SqrtDistance(double x1, double y1, double x2, double y2)
         {
             return Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
@@ -126,11 +126,59 @@ namespace MM_IdealGas.PhysicalComponents
         /// <summary>
         /// Сгенерировать начальную координату по одной проекции для одной частицы.
         /// </summary>
-        /// <param name="marginBorder">минимальное расстояние от границ</param>
+        /// <param name="marginBorder">Минимальное расстояние от границ.</param>
         /// <returns>Случайная координата частицы (нм).</returns>
         private double RandomParticleXY0(double marginBorder=0.0)
         {
             return marginBorder + _rnd.NextDouble() * (CellSize - 2*marginBorder); //2*marginBorder из-за минимума и отступа от CellSize
+        }
+        /// <summary>
+        /// Обеспечить нахождение координаты по одной проекции в границах ячейки.
+        /// </summary>
+        /// <param name="coord">Координата частицы по одной проекции.</param>
+        /// <returns>Координата частицы, точно находящаяся в границах ячейки (нм).</returns>
+        private double BorderChecker(double coord)
+        {
+            if (coord < 0) return coord + CellSize;
+            if (coord > CellSize) return coord - CellSize;
+            return coord;
+        }
+        /// <summary>
+        /// Рассчитать dx (dy) с учётом находения частиц с разных сторон границы.
+        /// </summary>
+        /// <param name="x1">Координата X(Y) первой частицы.</param>
+        /// <param name="x2">Координата X(Y) второй частицы.</param>
+        /// <returns>Разность координат (нм).</returns>
+        private double DxyThroughBorder(double x1, double x2)
+        {
+            var dx = x1 - x2;
+            var signX = dx > 0 ? 1 : -1;
+            return Math.Abs(dx) > CellSize / 2.0 ? dx - signX * CellSize : dx;
+        }
+        /// <summary>
+        /// Рассчитать квадрат расстояния между центрами двух частиц (с учётом периодических границ). 
+        /// </summary>
+        /// <param name="x1">Координата X первой частицы.</param>
+        /// <param name="y1">Координата Y первой частицы.</param>
+        /// <param name="x2">Координата X второй частицы.</param>
+        /// <param name="y2">Координата Y второй частицы.</param>
+        /// <returns>Квадрат расстояния между центрами двух частиц (нм).</returns>
+        private double SmartDistance(double x1, double y1, double x2, double y2)
+        {
+            var dx = DxyThroughBorder(x1, x2);
+            var dy = DxyThroughBorder(y1, y2);
+            return Math.Sqrt(dx*dx + dy*dy);
+        }
+        /// <summary>
+        /// Посчитать значение К функции.
+        /// </summary>
+        /// <param name="r">Расстояние между центрами взаимодействующих частиц.</param>
+        /// <returns>Результат выполнения К функции (нм).</returns>
+        private double FuncK(double r)
+        {
+            if (r < _r1) return 1;
+            if (r > _r2) return 0;
+            return Math.Pow(1.0 - Math.Pow((r - _r1) / (_r1 - _r2), 2), 2);
         }
         #endregion
 
@@ -170,8 +218,8 @@ namespace MM_IdealGas.PhysicalComponents
             foreach (var particle in _particles)
             {
                 double forceX = 0.0, forceY = 0.0;
-                particle.X = CoordinateNext(i, 1, ref forceX); //пока нету перехода через границу!!
-                particle.Y = CoordinateNext(i, 2, ref forceY);
+                particle.X = BorderChecker(CoordinateNext(i, 1, ref forceX));
+                particle.Y = BorderChecker(CoordinateNext(i, 2, ref forceY));
                 particle.Ux = VelocityNext(i, 1, forceX);
                 particle.Uy = VelocityNext(i++, 2, forceY);
             }
