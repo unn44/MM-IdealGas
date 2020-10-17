@@ -80,12 +80,19 @@ namespace MM_IdealGas.PhysicalComponents
         /// Коллекция всех частиц в исследуемой ячейке.
         /// Содержит: координаты X,Y центра частицы, текущую скорость частицы (Ux, Uy).
         /// </summary>
-        private ObservableCollection<Particle> _particles; //мб тоже public сделать и убрать функцию get-типа?
+        private ObservableCollection<Particle> _particles;
+
         /// <summary>
-        /// Получить коллекцию всех частиц в исследуемой ячейке.
+        /// Коллекция, содержащая коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
         /// </summary>
-        /// <returns></returns>
-        public ObservableCollection<Particle> GetParticles() => _particles;
+        private ObservableCollection<ObservableCollection<Particle>> _allParticles;
+        /// <summary>
+        /// Получить коллекцию, содержащую коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
+        /// Может быть использована для отображения результатов расчётов вне класса (например, построение в GUI).
+        /// </summary>
+        /// <returns>Коллекция, содержащая коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
+        /// Координаты - нм; Скорости - м/с.</returns>
+        public ObservableCollection<ObservableCollection<Particle>> GetParticlesCollection() => _allParticles;
 
         /// <summary>
         /// Внутренний рандом для класса Physical.
@@ -229,12 +236,11 @@ namespace MM_IdealGas.PhysicalComponents
         /// </summary>
         private void CalcAllTimeSteps()
         {
-            //TODO: гл. коллекция для записи коллекций частиц на каждом временном шаге.
-            //TODO: положить в гл. коллекцию начальное положение.
+            _allParticles = new ObservableCollection<ObservableCollection<Particle>> {_particles};
             for (var i = 0; i < TimeCounts; i++)
             {
                 DoTimeStep();
-                //TODO: положить в гл. коллекцию текущее положение.
+                _allParticles.Add(_particles);
             }
         }
         
@@ -272,8 +278,23 @@ namespace MM_IdealGas.PhysicalComponents
 
         private double ForceForOneParticle(int index, int direction)
         {
-            //TODO
-            return -1;
+            double curX = _particles[index].X, curY = _particles[index].Y;
+            var sum = 0.0; //итоговая сумма
+
+            for (var i = 0; i < _particles.Count; i++)
+            {
+                if (i==index) continue;
+                double othX = _particles[i].X, othY = _particles[i].Y;
+                var dist = SmartDistance(curX, curY, othX, othY); //Rik
+                var k = FuncK(dist);
+                if (k==0.0) continue;
+                var dxdy = direction == 1 ? DxyThroughBorder(curX, othX) : DxyThroughBorder(curY, othY); //dx or dy 
+                sum += (Math.Pow(A / dist, 6) - 1) * dxdy / Math.Pow(dist, 8) * k;
+            }
+
+            sum *= -12 * D * Math.Pow(A,6); //домножим на коэффициенты
+            sum *= -1; //потенциальную энергию в силу
+            return sum;
         }
     }
 }
