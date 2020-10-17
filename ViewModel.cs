@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using MM_IdealGas.Annotations;
 using MM_IdealGas.PhysicalComponents;
+using Timer = System.Timers.Timer;
 
 namespace MM_IdealGas
 {
@@ -22,14 +23,24 @@ namespace MM_IdealGas
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		private PhysFuncs _world;
+		private readonly Timer _timer;
+		private int _timerTick;
+		
+		private Physical _physical;
+		
+		public int ParticleNumber { get; set; } = 50;
+		public double MarginInit { get; set; } = 0.9;
+		public double U0MaxInit { get; set; } = 1e-9;
+		public double CoeffR1 { get; set; } = 1.1;
+		public double CoeffR2 { get; set; } = 1.8;
+		public double TimeDelta { get; set; } = 2e-14;
+		public int TimeCounts { get; set; } = 500;
 
 
-		public int CountParticles { get; set; } = 50;
 		public ICommand Generate { get; set; }
 		public ICommand Start { get; set; }
-		private ObservableCollection<ParticleOld> _particles;
-		public ObservableCollection<ParticleOld> Particles
+		private ObservableCollection<Particle> _particles;
+		public ObservableCollection<Particle> Particles
 		{
 			get => _particles;
 
@@ -41,53 +52,43 @@ namespace MM_IdealGas
 		}
 		public ViewModel()
 		{
-			_world = new PhysFuncs();
-			Initializer();
-			Particles = _world.GetParticles();
+			_timer = new Timer(100); //TODO: подобрать правильный шаг!
+			_timerTick = 0;
+			
+			_physical = new Physical();
+			_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
+			_physical.GenerateInitState();
+			Particles = _physical.GetParticlesCollection(_timerTick++);
 		
-			Generate = new RelayCommand(o => Initializer());
+			Generate = new RelayCommand(o =>
+			{
+				_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
+				_physical.GenerateInitState();
+				Particles = _physical.GetParticlesCollection(0);
+			});
+			
 			Start = new RelayCommand(o =>
 			{
-				Initializer(true);
+				_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
+				_physical.CalcAllTimeSteps();
 				SetTimer();
 			});
 		}
 
 		private void SetTimer()
 		{
-			// Create a timer with a two second interval.
-			var aTimer = new System.Timers.Timer(100);
-			// Hook up the Elapsed event for the timer. 
-			aTimer.Elapsed += OnTimedEvent;
-			aTimer.AutoReset = true;
-			aTimer.Enabled = true;
+			_timer.Elapsed += OnTimedEvent;
+			_timer.AutoReset = true;
+			_timer.Enabled = true;
 		}
 
-		private void OnTimedEvent(Object source, ElapsedEventArgs e)
+		private void OnTimedEvent(object source, ElapsedEventArgs e)
 		{
-			_world.DoStep();
-			Particles = _world.GetParticles();
+			//TODO: Сделать адекватную анимацию)
+			Particles = _physical.GetParticlesCollection(_timerTick);
+			if (_timerTick++ == TimeCounts) _timer.Stop();
 		}
 
-		private void Initializer(bool noGenerate = false)
-		{
-			_world.SetMargin(Margin);
-			_world.SetParticlesQuantity(CountParticles);
-			_world.SetMaxInitVel(MaxU0);
-			_world.SetR1R2(R1,R2);
-			_world.SetMass(Mass);
-			_world.SetTimeParams(DeltaT, TCounts);
-			if (noGenerate) return;
-			_world.GenerateInitState();
-			Particles = _world.GetParticles();
-		}
-		
-		public double Margin { get; set; } = 0.9;
-		public double MaxU0 { get; set; } = 1.0;
-		public double R1 { get; set; } = 1.1;
-		public double R2 { get; set; } = 1.8;
-		public double Mass { get; set; } = 39.948;
-		public double DeltaT { get; set; } = 1.0;
-		public int TCounts { get; set; } = 200;
+
 	}
 }

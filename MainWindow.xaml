@@ -35,24 +35,22 @@
 			</ItemsControl.ItemTemplate>
 
 		</ItemsControl>
-		<StackPanel Grid.Column="1">
+		<StackPanel Grid.Column="1" Margin="0,0,10,0">
             <Label Content="Количество частиц"/>
-            <TextBox Text="{Binding CountParticles, UpdateSourceTrigger=LostFocus}"/>
+            <TextBox Text="{Binding ParticleNumber, UpdateSourceTrigger=LostFocus}"/>
             <Label Content="Коэф. для расстояния между част."/>
-            <TextBox Text="{Binding Margin, UpdateSourceTrigger=LostFocus}"/>
-            <Label Content="Максимальная Uo"/>
-            <TextBox Text="{Binding MaxU0, UpdateSourceTrigger=LostFocus}"/>
+            <TextBox Text="{Binding MarginInit, UpdateSourceTrigger=LostFocus}"/>
+            <Label Content="Максимальная Uo (м/с)"/>
+            <TextBox Text="{Binding U0MaxInit, UpdateSourceTrigger=LostFocus}"/>
             
             <Label Content="Радиус обрезания: R1"/> 
-            <TextBox Text="{Binding R1, UpdateSourceTrigger=LostFocus}"/>
+            <TextBox Text="{Binding CoeffR1, UpdateSourceTrigger=LostFocus}"/>
             <Label Content="Радиус обрезания: R2"/>
-            <TextBox Text="{Binding R2, UpdateSourceTrigger=LostFocus}"/>
-            <Label Content="Масса частицы"/>
-            <TextBox Text="{Binding Mass, UpdateSourceTrigger=LostFocus}"/>
-            <Label Content="Шаг по времени"/>
-            <TextBox Text="{Binding DeltaT, UpdateSourceTrigger=LostFocus}"/>
+            <TextBox Text="{Binding CoeffR2, UpdateSourceTrigger=LostFocus}"/>
+            <Label Content="Шаг по времени (с)"/>
+            <TextBox Text="{Binding TimeDelta, UpdateSourceTrigger=LostFocus}"/>
             <Label Content="Количество шагов по времени"/>
-            <TextBox Text="{Binding TCounts, UpdateSourceTrigger=LostFocus}"/>
+            <TextBox Text="{Binding TimeCounts, UpdateSourceTrigger=LostFocus}"/>
             
             <Button Content="Сгенерировать" Command="{Binding Generate}" Margin="0,10,0,0"/>
             <Button Content="Запустить" Command="{Binding Start}" Margin="0,10,0,0"/>

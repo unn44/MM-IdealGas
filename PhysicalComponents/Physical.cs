@@ -13,7 +13,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// <summary>
         /// Множитель, "убирающий" лишние нули из СИ величин, обеспечивающий тем самым увеличение точности вычислений.
         /// </summary>
-        private const double MachineMultiplier = 1e9;
+        private const double MachineMultiplier = 1e9 * 35/*чуть крупней*/;
         
         
         /// <summary>
@@ -52,11 +52,11 @@ namespace MM_IdealGas.PhysicalComponents
         /// <summary>
         /// Максимальная начальная скорость частицы при начальной генерации (м/с).
         /// </summary>
-        private double _u0MaxInit = 1e-9;
+        private double _u0MaxInit;
         /// <summary>
         /// Шаг по времени (с).
         /// </summary>
-        private double _timeDelta = 2e-14;
+        private double _timeDelta;
         /// <summary>
         /// Количество шагов по времени.
         /// </summary>
@@ -279,6 +279,8 @@ namespace MM_IdealGas.PhysicalComponents
                 _particles.Add(new Particle(x, y, RandomParticleU0(), RandomParticleU0()));
                 if (++particlesNow == _particleNumber) break;
             }
+            
+            _allParticles = new ObservableCollection<ObservableCollection<Particle>> {_particles};
         }
         /// <summary>
         /// Сделать один шаг по времени (сместить частицы по времени на TimeDelta).
@@ -300,7 +302,6 @@ namespace MM_IdealGas.PhysicalComponents
         /// </summary>
         public void CalcAllTimeSteps()
         {
-            _allParticles = new ObservableCollection<ObservableCollection<Particle>> {_particles};
             for (var i = 0; i < _timeCounts; i++)
             {
                 DoTimeStep();
@@ -314,5 +315,13 @@ namespace MM_IdealGas.PhysicalComponents
         /// <returns>Коллекция, содержащая коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
         /// Координаты - м; Скорости - м/с.</returns>
         public ObservableCollection<ObservableCollection<Particle>> GetParticlesCollection() => _allParticles;
+
+        /// <summary>
+        /// Получить коллекцию, содержащую координаты и скорости всех частиц в исследуемой ячейке на указанном временном шаге.
+        /// Может быть использована для отображения результатов расчётов вне класса (например, построение в GUI).
+        /// </summary>
+        /// <returns>Коллекция, содержащая координаты и скорости всех частиц в исследуемой ячейке на указанном временном шаге.
+        /// Координаты - м; Скорости - м/с.</returns>
+        public ObservableCollection<Particle> GetParticlesCollection(int step) => _allParticles[step];
     }
 }
