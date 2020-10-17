@@ -5,6 +5,9 @@ using System.Runtime.CompilerServices;
 
 namespace MM_IdealGas.PhysicalComponents
 {
+	/// <summary>
+	/// Информация об одной частице: координаты центров и скорости.
+	/// </summary>
 	public class Particle : INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -14,9 +17,10 @@ namespace MM_IdealGas.PhysicalComponents
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
+		
 		private double x=0, y=0;
 		/// <summary>
-		/// Координата X частицы.
+		/// Координата X центра частицы.
 		/// </summary>
 		public double X
 		{
@@ -28,7 +32,7 @@ namespace MM_IdealGas.PhysicalComponents
 			}
 		}
 		/// <summary>
-		/// Координата Y частицы.
+		/// Координата Y центра частицы.
 		/// </summary>
 		public double Y
 		{
@@ -40,10 +44,13 @@ namespace MM_IdealGas.PhysicalComponents
 			}
 		}
 		/// <summary>
-		/// Скорости частицы.
+		/// Скорость частицы.
 		/// </summary>
         public double Ux, Uy;
 
+		/// <summary>
+		/// Конструктор: явная инициализация координат и скоростей частицы.
+		/// </summary>
 		public Particle(double x, double y, double ux, double uy)
         {
             X = x;

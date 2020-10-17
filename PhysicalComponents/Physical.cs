@@ -4,9 +4,12 @@ using System.Linq;
 
 namespace MM_IdealGas.PhysicalComponents
 {
+    /// <summary>
+    /// Основная физическая логика приложения.
+    /// </summary>
     public class Physical
     {
-        #region Class fields, constants and init logic
+        #region Поля класса, константы и логика инициализации
         /// <summary>
         /// Равновесное расстояние между центрами атомов (нм).
         /// </summary>
@@ -48,7 +51,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// <summary>
         /// Шаг по времени (с).
         /// </summary>
-        public double TimeDelta { get; set; } = 10; //??????
+        public double TimeDelta { get; set; } = 2e-14;
         /// <summary>
         /// Количество шагов по времени.
         /// </summary>
@@ -81,19 +84,11 @@ namespace MM_IdealGas.PhysicalComponents
         /// Содержит: координаты X,Y центра частицы, текущую скорость частицы (Ux, Uy).
         /// </summary>
         private ObservableCollection<Particle> _particles;
-
         /// <summary>
         /// Коллекция, содержащая коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
         /// </summary>
         private ObservableCollection<ObservableCollection<Particle>> _allParticles;
-        /// <summary>
-        /// Получить коллекцию, содержащую коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
-        /// Может быть использована для отображения результатов расчётов вне класса (например, построение в GUI).
-        /// </summary>
-        /// <returns>Коллекция, содержащая коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
-        /// Координаты - нм; Скорости - м/с.</returns>
-        public ObservableCollection<ObservableCollection<Particle>> GetParticlesCollection() => _allParticles;
-
+        
         /// <summary>
         /// Внутренний рандом для класса Physical.
         /// </summary>
@@ -108,7 +103,7 @@ namespace MM_IdealGas.PhysicalComponents
             _particles = new ObservableCollection<Particle>();
         }
         #endregion
-        #region Auxiliary functions
+        #region Вспомогательные функции
         /// <summary>
         /// Рассчитать квадрат расстояния между центрами двух частиц. 
         /// </summary>
@@ -124,7 +119,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// <summary>
         /// Сгенерировать начальную скорость по одной проекции для одной частицы.
         /// </summary>
-        /// <returns>Случайная скорость частицы в [-1,1) (м/с).</returns>
+        /// <returns>Случайная скорость частицы в [-U0max,U0max) (м/с).</returns>
         private double RandomParticleU0()
         {
             // надо [0,1], но NextDouble() дает [0,1), но и ладно :)
@@ -137,7 +132,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// <returns>Случайная координата частицы (нм).</returns>
         private double RandomParticleXY0(double marginBorder=0.0)
         {
-            return marginBorder + _rnd.NextDouble() * (CellSize - 2*marginBorder); //2*marginBorder из-за минимума и отступа от CellSize
+            return marginBorder + _rnd.NextDouble() * (CellSize - 2*marginBorder); //2*marginBorder из-за минимума и отступа от конца CellSize
         }
         /// <summary>
         /// Обеспечить нахождение координаты по одной проекции в границах ячейки.
@@ -188,63 +183,33 @@ namespace MM_IdealGas.PhysicalComponents
             return Math.Pow(1.0 - Math.Pow((r - _r1) / (_r1 - _r2), 2), 2);
         }
         #endregion
-
+        #region Функции, необходимые для расчёта след. шага
         /// <summary>
-        /// Расположить частицы в ячейку и сохранить их положения и начальные скорости в коллекцию. 
+        /// Рассчитать силу, действующую на частицу, на текущем шаге по времени.
         /// </summary>
-        public void GenerateInitState()
+        /// <param name="index">Индекс частицы, для которой будет производиться расчёт, из общего списка частиц.</param>
+        /// <param name="direction">Направление в плоскости (проекция): 1 = X, 2 = Y.</param>
+        /// <returns>Сила, действующая на частицу, на текущем шаге по времени (??=дж).</returns>
+        private double ForceForOneParticle(int index, int direction)
         {
-            _particles.Clear();
-            var particlesNow = 0; // текущее количество сгенерированных частиц.
-            const double doubleRadius = ParticleRadius * 2.0; //расчёт между центрами, поэтому необходимо учесть радиус у обеих частиц.
+            double curX = _particles[index].X, curY = _particles[index].Y;
+            var sum = 0.0; //итоговая сумма
 
-            var betweenParticles = _marginInit + doubleRadius; //минимальное допустимое расстояние между частицами.
-            var marginBorder = _marginInit / 2.0 + ParticleRadius; //минимальное допустимое расстояние от границ.
-            
-            while (true)
+            for (var i = 0; i < _particles.Count; i++)
             {
-                var trashPnt = false; //true -> точку на выброс.
-                var x = RandomParticleXY0(marginBorder);
-                var y = RandomParticleXY0(marginBorder);
-                foreach (var unused in _particles.Where(par => SqrtDistance(par.X, par.Y, x, y) < betweenParticles))
-                {
-                    trashPnt = true;
-                }
-                if (trashPnt) continue;
-                _particles.Add(new Particle(x, y, RandomParticleU0(), RandomParticleU0()));
-                if (++particlesNow == ParticleNumber) break;
+                if (i==index) continue;
+                double othX = _particles[i].X, othY = _particles[i].Y;
+                var dist = SmartDistance(curX, curY, othX, othY); //Rik
+                var k = FuncK(dist);
+                if (k==0.0) continue;
+                var dxdy = direction == 1 ? DxyThroughBorder(curX, othX) : DxyThroughBorder(curY, othY); //dx or dy 
+                sum += (Math.Pow(A / dist, 6) - 1) * dxdy / Math.Pow(dist, 8) * k;
             }
-        }
 
-        /// <summary>
-        /// Сделать один шаг по времени (сместить частицы по времени TimeDelta).
-        /// </summary>
-        private void DoTimeStep()
-        {
-            var i = 0;
-            foreach (var particle in _particles)
-            {
-                double forceX = 0.0, forceY = 0.0;
-                particle.X = BorderChecker(CoordinateNext(i, 1, ref forceX));
-                particle.Y = BorderChecker(CoordinateNext(i, 2, ref forceY));
-                particle.Ux = VelocityNext(i, 1, forceX);
-                particle.Uy = VelocityNext(i++, 2, forceY);
-            }
+            sum *= -12 * D * Math.Pow(A,6); //домножим на коэффициенты
+            sum *= -1; //потенциальную энергию в силу
+            return sum;
         }
-        /// <summary>
-        /// Рассчитать все шаги по времени и сохранить их в коллекцию коллекций.
-        /// </summary>
-        private void CalcAllTimeSteps()
-        {
-            _allParticles = new ObservableCollection<ObservableCollection<Particle>> {_particles};
-            for (var i = 0; i < TimeCounts; i++)
-            {
-                DoTimeStep();
-                _allParticles.Add(_particles);
-            }
-        }
-        
-        #region "Next" functions
         /// <summary>
         /// Рассчитать координату по одной проекции частицы на следующем шаге по времени.
         /// </summary>
@@ -275,26 +240,66 @@ namespace MM_IdealGas.PhysicalComponents
             return velK + (forceK1 + forceK) * TimeDelta / (2*Mass);
         }
         #endregion
-
-        private double ForceForOneParticle(int index, int direction)
+        
+        /// <summary>
+        /// Расположить частицы в ячейку и сохранить их положения и начальные скорости в коллекцию. 
+        /// </summary>
+        public void GenerateInitState()
         {
-            double curX = _particles[index].X, curY = _particles[index].Y;
-            var sum = 0.0; //итоговая сумма
+            _particles.Clear();
+            var particlesNow = 0; // текущее количество сгенерированных частиц.
+            const double doubleRadius = ParticleRadius * 2.0; //расчёт между центрами, поэтому необходимо учесть радиус у обеих частиц.
 
-            for (var i = 0; i < _particles.Count; i++)
+            var betweenParticles = _marginInit + doubleRadius; //минимальное допустимое расстояние между частицами.
+            var marginBorder = _marginInit / 2.0 + ParticleRadius; //минимальное допустимое расстояние от границ.
+            
+            while (true)
             {
-                if (i==index) continue;
-                double othX = _particles[i].X, othY = _particles[i].Y;
-                var dist = SmartDistance(curX, curY, othX, othY); //Rik
-                var k = FuncK(dist);
-                if (k==0.0) continue;
-                var dxdy = direction == 1 ? DxyThroughBorder(curX, othX) : DxyThroughBorder(curY, othY); //dx or dy 
-                sum += (Math.Pow(A / dist, 6) - 1) * dxdy / Math.Pow(dist, 8) * k;
+                var trashPnt = false; //true -> точку на выброс.
+                var x = RandomParticleXY0(marginBorder);
+                var y = RandomParticleXY0(marginBorder);
+                foreach (var unused in _particles.Where(par => SqrtDistance(par.X, par.Y, x, y) < betweenParticles))
+                {
+                    trashPnt = true;
+                }
+                if (trashPnt) continue;
+                _particles.Add(new Particle(x, y, RandomParticleU0(), RandomParticleU0()));
+                if (++particlesNow == ParticleNumber) break;
             }
-
-            sum *= -12 * D * Math.Pow(A,6); //домножим на коэффициенты
-            sum *= -1; //потенциальную энергию в силу
-            return sum;
         }
+        /// <summary>
+        /// Сделать один шаг по времени (сместить частицы по времени на TimeDelta).
+        /// </summary>
+        private void DoTimeStep()
+        {
+            var i = 0;
+            foreach (var particle in _particles)
+            {
+                double forceX = 0.0, forceY = 0.0;
+                particle.X = BorderChecker(CoordinateNext(i, 1, ref forceX));
+                particle.Y = BorderChecker(CoordinateNext(i, 2, ref forceY));
+                particle.Ux = VelocityNext(i, 1, forceX);
+                particle.Uy = VelocityNext(i++, 2, forceY);
+            }
+        }
+        /// <summary>
+        /// Рассчитать все шаги по времени и сохранить их в коллекцию коллекций.
+        /// </summary>
+        public void CalcAllTimeSteps()
+        {
+            _allParticles = new ObservableCollection<ObservableCollection<Particle>> {_particles};
+            for (var i = 0; i < TimeCounts; i++)
+            {
+                DoTimeStep();
+                _allParticles.Add(_particles);
+            }
+        }
+        /// <summary>
+        /// Получить коллекцию, содержащую коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
+        /// Может быть использована для отображения результатов расчётов вне класса (например, построение в GUI).
+        /// </summary>
+        /// <returns>Коллекция, содержащая коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
+        /// Координаты - нм; Скорости - м/с.</returns>
+        public ObservableCollection<ObservableCollection<Particle>> GetParticlesCollection() => _allParticles;
     }
 }
