@@ -15,9 +15,9 @@ namespace MM_IdealGas.PhysicalComponents
         /// </summary>
         private const double A = 0.382e-9;
         /// <summary>
-        /// Модуль потенц. энергии взаимодействия между атомами при равновесии (эВ). 
+        /// Модуль потенц. энергии взаимодействия между атомами при равновесии (Дж). 
         /// </summary>
-        private const double D = 0.0103;
+        private const double D = 0.0103 * 1.6e-19; // 0.0103 эВ переведены в Дж
         /// <summary>
         /// Ширина / высота квадрата (ед.).
         /// </summary>
@@ -45,9 +45,9 @@ namespace MM_IdealGas.PhysicalComponents
         /// </summary>
         public double U0MaxInit { get; set; } = 1e-9;
         /// <summary>
-        /// Масса частицы (а. ед. м.).
+        /// Масса частицы (кг).
         /// </summary>
-        public double Mass { get; set; } = 39.948;
+        public double Mass { get; set; } = 39.948 * 1.66054e-27; // 39.948 а.е.м. переведены в кг
         /// <summary>
         /// Шаг по времени (с).
         /// </summary>
@@ -189,7 +189,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// </summary>
         /// <param name="index">Индекс частицы, для которой будет производиться расчёт, из общего списка частиц.</param>
         /// <param name="direction">Направление в плоскости (проекция): 1 = X, 2 = Y.</param>
-        /// <returns>Сила, действующая на частицу, на текущем шаге по времени (??=дж).</returns>
+        /// <returns>Сила, действующая на частицу, на текущем шаге по времени (Дж).</returns>
         private double ForceForOneParticle(int index, int direction)
         {
             double curX = _particles[index].X, curY = _particles[index].Y;
