@@ -75,6 +75,7 @@ namespace MM_IdealGas
 		public ViewModel()
 		{
 			_timer = new Timer(5); //TODO: подобрать правильный шаг!
+			_timer.Elapsed += OnTimedEvent;
 			_timerTick = 0;
 			CountSteps = $"Количество шагов: {_timerTick} ";
 
@@ -108,7 +109,6 @@ namespace MM_IdealGas
 		{
 			if (startOrStop)
 			{
-				_timer.Elapsed += OnTimedEvent;
 				_timer.AutoReset = true;
 				_timer.Enabled = true;
 				startOrStop = false;
