@@ -27,19 +27,30 @@ namespace MM_IdealGas
 		private bool startOrStop = true;
 		private string stop;
 		public string StopOrStartName => startOrStop ? "Запустить" : "Остановить";
-		private string countSteps;
+		private string _countSteps;
 		public string CountSteps
 		{
-			get => countSteps;
+			get => _countSteps;
 			set
 			{
 
-				countSteps = value;
+				_countSteps = value;
 				OnPropertyChanged();
 			}
 		}
+
+		private double _sizeCell;
+		public double SizeCell
+		{
+			get => _sizeCell;
+			set
+			{
+				_sizeCell = value;
+				OnPropertyChanged();
+			}
+		}
+
 		public int ParticleNumber { get; set; } = 50;
-		public int SizeCell { get; set; } = 415;
 		public double MarginInit { get; set; } = 0.9;
 		public double U0MaxInit { get; set; } = 1e-8;
 		public double CoeffR1 { get; set; } = 1.1;
@@ -70,6 +81,10 @@ namespace MM_IdealGas
 			_physical = new Physical();
 			_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
 			_physical.GenerateInitState();
+
+			SizeCell = Physical.GetCellSize() + Physical.GetParticleSize(); // потому что нету нормального "половинного" деления частицы
+
+
 			Particles = _physical.GetParticlesCollection(_timerTick++);
 		
 			Generate = new RelayCommand(o =>

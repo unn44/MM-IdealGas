@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MM_IdealGas"
         mc:Ignorable="d"
-        Title="2D Ideal gas" Height="455" Width="645">
+        Title="2D Ideal gas" Height="1050" Width="1250"
+        WindowState="Maximized">
    <Window.DataContext>
 	   <local:ViewModel/>
    </Window.DataContext>
@@ -30,7 +31,7 @@
 
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
-					<Ellipse Fill="Red"   Width="{Binding Radius}" Height="{Binding Radius}" />
+					<Ellipse Fill="Red"   Width="{Binding Diameter}" Height="{Binding Diameter}" />
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
 

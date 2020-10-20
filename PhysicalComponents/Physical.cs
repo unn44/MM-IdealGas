@@ -13,7 +13,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// <summary>
         /// Множитель, "убирающий" лишние нули из СИ величин, обеспечивающий тем самым увеличение точности вычислений.
         /// </summary>
-        private const double MachineMultiplier = 1e9 * 35/*чуть крупней*/;
+        private const double MachineMultiplier = 1e9 * 85/*чуть крупней*/;
         
         
         /// <summary>
@@ -259,6 +259,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// </summary>
         public void GenerateInitState()
         {
+            Particle.Diameter = ParticleRadius*2;
             _particles.Clear();
             var particlesNow = 0; // текущее количество сгенерированных частиц.
             const double doubleRadius = ParticleRadius * 2.0; //расчёт между центрами, поэтому необходимо учесть радиус у обеих частиц.
@@ -327,5 +328,8 @@ namespace MM_IdealGas.PhysicalComponents
         /// <returns>Коллекция, содержащая координаты и скорости всех частиц в исследуемой ячейке на указанном временном шаге.
         /// Координаты - м; Скорости - м/с.</returns>
         public ObservableCollection<Particle> GetParticlesCollection(int step) => _allParticles[step];
+
+        public static double GetCellSize() => CellSize;
+        public static double GetParticleSize() => ParticleRadius*2;
     }
 }
