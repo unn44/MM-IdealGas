@@ -26,26 +26,11 @@ namespace MM_IdealGas
 
 		private bool startOrStop = true;
 		private string stop;
-		public string StopOrStartName
-		{
-			get
-			{
-			return	(startOrStop ? "Запустить" : "Остановить");
-			}
-			set
-			{
-				
-				stop = value;
-				OnPropertyChanged();
-			}
-		}
+		public string StopOrStartName => startOrStop ? "Запустить" : "Остановить";
 		private string countSteps;
 		public string CountSteps
 		{
-			get
-			{
-				return countSteps;
-			}
+			get => countSteps;
 			set
 			{
 
@@ -56,10 +41,10 @@ namespace MM_IdealGas
 		public int ParticleNumber { get; set; } = 50;
 		public int SizeCell { get; set; } = 415;
 		public double MarginInit { get; set; } = 0.9;
-		public double U0MaxInit { get; set; } = 1e-9;
+		public double U0MaxInit { get; set; } = 1e-8;
 		public double CoeffR1 { get; set; } = 1.1;
 		public double CoeffR2 { get; set; } = 1.8;
-		public double TimeDelta { get; set; } = 1e-13;
+		public double TimeDelta { get; set; } = 2e-14;
 		public int TimeCounts { get; set; } = 500;
 
 		
@@ -80,7 +65,8 @@ namespace MM_IdealGas
 		{
 			_timer = new Timer(5); //TODO: подобрать правильный шаг!
 			_timerTick = 0;
-			
+			CountSteps = $"Количество шагов: {_timerTick} ";
+
 			_physical = new Physical();
 			_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
 			_physical.GenerateInitState();
@@ -88,6 +74,10 @@ namespace MM_IdealGas
 		
 			Generate = new RelayCommand(o =>
 			{
+				//сброс таймера
+				_timerTick = 0;
+				CountSteps = $"Количество шагов: {_timerTick} ";
+				if (!startOrStop) SetTimer();
 				_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
 				_physical.GenerateInitState();
 				Particles = _physical.GetParticlesCollection(0);
@@ -120,8 +110,8 @@ namespace MM_IdealGas
 		private void OnTimedEvent(object source, ElapsedEventArgs e)
 		{
 			_timerTick++;
-	     Particles	=	_physical.GetParticlesCollection();
-			CountSteps = string.Format("Количество шагов: {0} ", _timerTick);
+			Particles = _physical.GetParticlesCollection();
+			CountSteps = $"Количество шагов: {_timerTick} ";
 		}
 
 
