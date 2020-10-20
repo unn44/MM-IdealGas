@@ -17,8 +17,8 @@ namespace MM_IdealGas.PhysicalComponents
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
-		
-		private double x=0, y=0;
+
+		private double x = 0, y = 0, radius =11;
 		/// <summary>
 		/// Координата X центра частицы.
 		/// </summary>
@@ -43,10 +43,20 @@ namespace MM_IdealGas.PhysicalComponents
 				OnPropertyChanged();
 			}
 		}
+		public double Radius
+		{
+			get => radius;
+			set
+			{
+				radius = value;
+				OnPropertyChanged();
+			}
+		}
+
 		/// <summary>
 		/// Скорость частицы.
 		/// </summary>
-        public double Ux, Uy;
+		public double Ux, Uy;
 
 		/// <summary>
 		/// Конструктор: явная инициализация координат и скоростей частицы.

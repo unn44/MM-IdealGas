@@ -1,14 +1,10 @@
-using System;
+using MM_IdealGas.Annotations;
+using MM_IdealGas.PhysicalComponents;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Timers;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using MM_IdealGas.Annotations;
-using MM_IdealGas.PhysicalComponents;
 using Timer = System.Timers.Timer;
 
 namespace MM_IdealGas
@@ -29,11 +25,12 @@ namespace MM_IdealGas
 		private Physical _physical;
 		
 		public int ParticleNumber { get; set; } = 50;
+		public int SizeCell { get; set; } = 415;
 		public double MarginInit { get; set; } = 0.9;
 		public double U0MaxInit { get; set; } = 1e-9;
 		public double CoeffR1 { get; set; } = 1.1;
 		public double CoeffR2 { get; set; } = 1.8;
-		public double TimeDelta { get; set; } = 2e-14;
+		public double TimeDelta { get; set; } = 1e-13;
 		public int TimeCounts { get; set; } = 500;
 
 
@@ -52,7 +49,7 @@ namespace MM_IdealGas
 		}
 		public ViewModel()
 		{
-			_timer = new Timer(100); //TODO: подобрать правильный шаг!
+			_timer = new Timer(40); //TODO: подобрать правильный шаг!
 			_timerTick = 0;
 			
 			_physical = new Physical();
@@ -69,7 +66,6 @@ namespace MM_IdealGas
 			
 			Start = new RelayCommand(o =>
 			{
-				_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
 				_physical.CalcAllTimeSteps();
 				SetTimer();
 			});
@@ -84,9 +80,7 @@ namespace MM_IdealGas
 
 		private void OnTimedEvent(object source, ElapsedEventArgs e)
 		{
-			//TODO: Сделать адекватную анимацию)
-			Particles = _physical.GetParticlesCollection(_timerTick);
-			if (_timerTick++ == TimeCounts) _timer.Stop();
+	     Particles	=	_physical.GetParticlesCollection();
 		}
 
 

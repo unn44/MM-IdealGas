@@ -314,7 +314,11 @@ namespace MM_IdealGas.PhysicalComponents
         /// </summary>
         /// <returns>Коллекция, содержащая коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
         /// Координаты - м; Скорости - м/с.</returns>
-        public ObservableCollection<ObservableCollection<Particle>> GetParticlesCollection() => _allParticles;
+        public ObservableCollection<Particle> GetParticlesCollection()
+        {
+            DoTimeStep();
+           return  _particles;
+        }
 
         /// <summary>
         /// Получить коллекцию, содержащую координаты и скорости всех частиц в исследуемой ячейке на указанном временном шаге.
