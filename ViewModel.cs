@@ -23,7 +23,36 @@ namespace MM_IdealGas
 		private int _timerTick;
 		
 		private Physical _physical;
-		
+
+		private bool startOrStop = true;
+		private string stop;
+		public string StopOrStartName
+		{
+			get
+			{
+			return	(startOrStop ? "Запустить" : "Остановить");
+			}
+			set
+			{
+				
+				stop = value;
+				OnPropertyChanged();
+			}
+		}
+		private string countSteps;
+		public string CountSteps
+		{
+			get
+			{
+				return countSteps;
+			}
+			set
+			{
+
+				countSteps = value;
+				OnPropertyChanged();
+			}
+		}
 		public int ParticleNumber { get; set; } = 50;
 		public int SizeCell { get; set; } = 415;
 		public double MarginInit { get; set; } = 0.9;
@@ -33,7 +62,7 @@ namespace MM_IdealGas
 		public double TimeDelta { get; set; } = 1e-13;
 		public int TimeCounts { get; set; } = 500;
 
-
+		
 		public ICommand Generate { get; set; }
 		public ICommand Start { get; set; }
 		private ObservableCollection<Particle> _particles;
@@ -49,7 +78,7 @@ namespace MM_IdealGas
 		}
 		public ViewModel()
 		{
-			_timer = new Timer(40); //TODO: подобрать правильный шаг!
+			_timer = new Timer(5); //TODO: подобрать правильный шаг!
 			_timerTick = 0;
 			
 			_physical = new Physical();
@@ -66,21 +95,33 @@ namespace MM_IdealGas
 			
 			Start = new RelayCommand(o =>
 			{
-				_physical.CalcAllTimeSteps();
-				SetTimer();
+					SetTimer();
 			});
 		}
 
 		private void SetTimer()
 		{
-			_timer.Elapsed += OnTimedEvent;
-			_timer.AutoReset = true;
-			_timer.Enabled = true;
+			if (startOrStop)
+			{
+				_timer.Elapsed += OnTimedEvent;
+				_timer.AutoReset = true;
+				_timer.Enabled = true;
+				startOrStop = false;
+				OnPropertyChanged(nameof(StopOrStartName));
+			}
+			else
+			{
+				_timer.Enabled = false;
+				startOrStop = true;
+				OnPropertyChanged(nameof(StopOrStartName));
+			}
 		}
 
 		private void OnTimedEvent(object source, ElapsedEventArgs e)
 		{
+			_timerTick++;
 	     Particles	=	_physical.GetParticlesCollection();
+			CountSteps = string.Format("Количество шагов: {0} ", _timerTick);
 		}
 
 
