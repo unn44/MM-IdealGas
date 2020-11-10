@@ -14,7 +14,7 @@
 	<i:Interaction.Triggers>
 		<i:EventTrigger EventName="SizeChanged">
 			<i:InvokeCommandAction
-                            Command="{Binding Start}" />
+                            Command="{Binding Transform}" />
 		</i:EventTrigger>
 	</i:Interaction.Triggers>
 	<Grid>

@@ -2,7 +2,6 @@ using MM_IdealGas.Annotations;
 using MM_IdealGas.PhysicalComponents;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Timers;
 using System.Windows.Input;
@@ -145,10 +144,13 @@ namespace MM_IdealGas
 				TransformPanel();
 			});
 		}
+		/// <summary>
+		/// Функция вызываемая при изменении размеров окна
+		/// </summary>
 		private void TransformPanel()
 		{
+			//MachineMultiplier= чему-то там, по идее  она констнта, её хуй поменяешь, но надо , или заново мир генерировать
 			_timer.Enabled = false;
-			Particles = _physical.SetParticlesCollection(WindowHeight<WindowHeight?WindowHeight:WindowWidth);
 			_timer.Enabled = true;
 		}
 

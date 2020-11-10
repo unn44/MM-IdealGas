@@ -13,7 +13,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// <summary>
         /// Множитель, "убирающий" лишние нули из СИ величин, обеспечивающий тем самым увеличение точности вычислений.
         /// </summary>
-        private const double MachineMultiplier = 1e9 * 85/*чуть крупней*/;
+        private const double MachineMultiplier = 1e9 * 50/*чуть крупней*/;
         
         
         /// <summary>
@@ -82,7 +82,7 @@ namespace MM_IdealGas.PhysicalComponents
 
 		internal ObservableCollection<Particle> SetParticlesCollection(double koef)
 		{
-			throw new NotImplementedException();
+            return _particles;
        
 		}
 
