@@ -4,17 +4,25 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MM_IdealGas"
+	 xmlns:oxy="http://oxyplot.org/wpf"
+		xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        Title="2D Ideal gas" Height="1050" Width="1250"
-        WindowState="Maximized">
-   <Window.DataContext>
-	   <local:ViewModel/>
-   </Window.DataContext>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="200"/>
-        </Grid.ColumnDefinitions>
+        Title="2D Ideal gas" Height="1050" Width="1450">
+	<Window.DataContext>
+		<local:ViewModel/>
+	</Window.DataContext>
+	<i:Interaction.Triggers>
+		<i:EventTrigger EventName="SizeChanged">
+			<i:InvokeCommandAction
+                            Command="{Binding Start}" />
+		</i:EventTrigger>
+	</i:Interaction.Triggers>
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="1000"/>
+			<ColumnDefinition/>
+			<ColumnDefinition Width="200"/>
+		</Grid.ColumnDefinitions>
 		<ItemsControl ItemsSource="{Binding Particles,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
@@ -26,6 +34,7 @@
 				<Style TargetType="ContentPresenter">
 					<Setter Property="Canvas.Left" Value="{Binding  X , Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
 					<Setter Property="Canvas.Top" Value="{Binding  Y, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+
 				</Style>
 			</ItemsControl.ItemContainerStyle>
 
@@ -36,23 +45,27 @@
 			</ItemsControl.ItemTemplate>
 
 		</ItemsControl>
-		<StackPanel Grid.Column="1" Margin="0,0,10,0">
-            <Label Content="Количество частиц"/>
-            <TextBox Text="{Binding ParticleNumber, UpdateSourceTrigger=LostFocus}"/>
-            <Label Content="Коэф. расст. между частицами"/>
-            <TextBox Text="{Binding MarginInit, UpdateSourceTrigger=LostFocus}"/>
-            <Label Content="Максимальная Uo (м/с)"/>
-            <TextBox Text="{Binding U0MaxInit, UpdateSourceTrigger=LostFocus}"/>
-            
-            <Label Content="Коэф. радиуса обрезания R1"/> 
-            <TextBox Text="{Binding CoeffR1, UpdateSourceTrigger=LostFocus}"/>
-            <Label Content="Коэф. радиуса обрезания R2"/>
-            <TextBox Text="{Binding CoeffR2, UpdateSourceTrigger=LostFocus}"/>
-            <Label Content="Шаг по времени (с)"/>
-            <TextBox Text="{Binding TimeDelta, UpdateSourceTrigger=LostFocus}"/>
+		<Grid Grid.Column="1" >
+			<oxy:PlotView x:Name="Plot1"  Model="{Binding PlotModels}" Margin="10" Grid.Row="1">
+			</oxy:PlotView>
+		</Grid>
+		<StackPanel Grid.Column="2" Margin="0,0,10,0">
+			<Label Content="Количество частиц"/>
+			<TextBox Text="{Binding ParticleNumber, UpdateSourceTrigger=LostFocus}"/>
+			<Label Content="Коэф. расст. между частицами"/>
+			<TextBox Text="{Binding MarginInit, UpdateSourceTrigger=LostFocus}"/>
+			<Label Content="Максимальная Uo (м/с)"/>
+			<TextBox Text="{Binding U0MaxInit, UpdateSourceTrigger=LostFocus}"/>
+
+			<Label Content="Коэф. радиуса обрезания R1"/>
+			<TextBox Text="{Binding CoeffR1, UpdateSourceTrigger=LostFocus}"/>
+			<Label Content="Коэф. радиуса обрезания R2"/>
+			<TextBox Text="{Binding CoeffR2, UpdateSourceTrigger=LostFocus}"/>
+			<Label Content="Шаг по времени (с)"/>
+			<TextBox Text="{Binding TimeDelta, UpdateSourceTrigger=LostFocus}"/>
 			<Label  Content="{Binding CountSteps, UpdateSourceTrigger=PropertyChanged}"/>
 			<Button Content="Сгенерировать" Command="{Binding Generate}" Margin="0,10,0,0"/>
 			<Button Content="{Binding StopOrStartName,UpdateSourceTrigger=PropertyChanged,Mode=OneWay}" Command="{Binding Start}" Margin="0,10,0,0"/>
 		</StackPanel>
-    </Grid>
+	</Grid>
 </Window>

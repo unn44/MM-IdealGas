@@ -79,11 +79,17 @@ namespace MM_IdealGas.PhysicalComponents
         /// Коллекция, содержащая коллекцию координат и скоростей всех частиц в исследуемой ячейке на всех временных шагах.
         /// </summary>
         private ObservableCollection<ObservableCollection<Particle>> _allParticles;
-        
-        /// <summary>
-        /// Внутренний рандом для класса Physical.
-        /// </summary>
-        private readonly Random _rnd;
+
+		internal ObservableCollection<Particle> SetParticlesCollection(double koef)
+		{
+			throw new NotImplementedException();
+       
+		}
+
+		/// <summary>
+		/// Внутренний рандом для класса Physical.
+		/// </summary>
+		private readonly Random _rnd;
 
         /// <summary>
         /// Конструктор: инициализация коллекции частиц и рандома. 

@@ -2,10 +2,14 @@ using MM_IdealGas.Annotations;
 using MM_IdealGas.PhysicalComponents;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Timers;
 using System.Windows.Input;
+using OxyPlot;
 using Timer = System.Timers.Timer;
+using OxyPlot.Series;
+using System;
 
 namespace MM_IdealGas
 {
@@ -18,14 +22,21 @@ namespace MM_IdealGas
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
+		private PlotModel plotModel;
+		public PlotModel PlotModels
+		{
+			get { return plotModel; }
+			set { plotModel = value; OnPropertyChanged("PlotModel"); }
+		}
+
 
 		private readonly Timer _timer;
 		private int _timerTick;
-		
+
 		private Physical _physical;
 
 		private bool startOrStop = true;
-		private string stop;
+
 		public string StopOrStartName => startOrStop ? "Запустить" : "Остановить";
 		private string _countSteps;
 		public string CountSteps
@@ -50,6 +61,26 @@ namespace MM_IdealGas
 			}
 		}
 
+		private double _windowHeight;
+		public double WindowHeight
+		{
+			get => _windowHeight;
+			set
+			{
+				_windowHeight = value;
+				OnPropertyChanged();
+			}
+		}
+		private double _windowWidth;
+		public double WindowWidth
+		{
+			get => _windowWidth;
+			set
+			{
+				_windowWidth = value;
+				OnPropertyChanged();
+			}
+		}
 		public int ParticleNumber { get; set; } = 50;
 		public double MarginInit { get; set; } = 0.9;
 		public double U0MaxInit { get; set; } = 1e-8;
@@ -58,9 +89,11 @@ namespace MM_IdealGas
 		public double TimeDelta { get; set; } = 2e-14;
 		public int TimeCounts { get; set; } = 500;
 
-		
+
 		public ICommand Generate { get; set; }
 		public ICommand Start { get; set; }
+		public ICommand Transform { get; set; }
+
 		private ObservableCollection<Particle> _particles;
 		public ObservableCollection<Particle> Particles
 		{
@@ -68,13 +101,17 @@ namespace MM_IdealGas
 
 			set
 			{
-			_particles=value;
-			OnPropertyChanged(nameof(Particles));
+				_particles = value;
+				OnPropertyChanged(nameof(Particles));
 			}
 		}
 		public ViewModel()
 		{
-			_timer = new Timer(5); //TODO: подобрать правильный шаг!
+			PlotModels = new PlotModel { Title = "Example 1" };
+			PlotModels.Series.Add(new FunctionSeries(Math.Cos, 0, 10, 0.1, "cos(x)"));
+			_windowHeight = 800;
+			_windowWidth = 1000;
+			_timer = new Timer(1); //TODO: подобрать правильный шаг!
 			_timer.Elapsed += OnTimedEvent;
 			_timerTick = 0;
 			CountSteps = $"Количество шагов: {_timerTick} ";
@@ -87,7 +124,7 @@ namespace MM_IdealGas
 
 
 			Particles = _physical.GetParticlesCollection(_timerTick++);
-		
+
 			Generate = new RelayCommand(o =>
 			{
 				//сброс таймера
@@ -98,11 +135,21 @@ namespace MM_IdealGas
 				_physical.GenerateInitState();
 				Particles = _physical.GetParticlesCollection(0);
 			});
-			
+
 			Start = new RelayCommand(o =>
 			{
-					SetTimer();
+				SetTimer();
 			});
+			Transform = new RelayCommand(o =>
+			{
+				TransformPanel();
+			});
+		}
+		private void TransformPanel()
+		{
+			_timer.Enabled = false;
+			Particles = _physical.SetParticlesCollection(WindowHeight<WindowHeight?WindowHeight:WindowWidth);
+			_timer.Enabled = true;
 		}
 
 		private void SetTimer()
