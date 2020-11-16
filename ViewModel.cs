@@ -119,7 +119,7 @@ namespace MM_IdealGas
 			_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
 			_physical.GenerateInitState();
 
-			SizeCell = Physical.GetCellSize() + Physical.GetParticleSize(); // потому что нету нормального "половинного" деления частицы
+			SizeCell = Physical.GetCellSize() /*+ Physical.GetParticleSize()*/; // потому что нету нормального "половинного" деления частицы
 			BorderCell = SizeCell * 7e10 + 4;
 
 			Particles = _physical.GetParticlesCollection(_timerTick++);

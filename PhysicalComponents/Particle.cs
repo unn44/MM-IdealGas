@@ -19,6 +19,7 @@ namespace MM_IdealGas.PhysicalComponents
 		}
 
 		private double x, y;
+		private double xCnvs, yCnvs;
 
 		/// <summary>
 		/// Координата X центра частицы.
@@ -29,6 +30,8 @@ namespace MM_IdealGas.PhysicalComponents
 			set
 			{
 				x = value;
+				xCnvs = x - Diameter / 2.0;
+				OnPropertyChanged(nameof(XCnvs));
 				OnPropertyChanged();
 			}
 		}
@@ -41,9 +44,25 @@ namespace MM_IdealGas.PhysicalComponents
 			set
 			{
 				y = value;
+				yCnvs = y - Diameter / 2.0;
+				OnPropertyChanged(nameof(YCnvs));
 				OnPropertyChanged();
 			}
 		}
+
+		public double XCnvs
+		{
+			get => xCnvs;
+			set => xCnvs = value;
+		}
+
+		public double YCnvs
+		{
+			get => yCnvs;
+			set => yCnvs = value;
+		}
+
+
 		/// <summary>
 		/// Диаметр (размер) частицы. Одинаковый для всех частиц.
 		/// </summary>
@@ -63,6 +82,9 @@ namespace MM_IdealGas.PhysicalComponents
             Y = y;
             Ux = ux;
             Uy = uy;
+            
+            XCnvs = X - Diameter / 2.0;
+            YCnvs = Y - Diameter / 2.0;
         }
     }
 }

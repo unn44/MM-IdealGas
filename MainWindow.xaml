@@ -23,17 +23,15 @@
 			<ColumnDefinition/>
 			<ColumnDefinition Width="200"/>
 		</Grid.ColumnDefinitions>
-		<Border
-			BorderThickness="2"
-			BorderBrush="DimGray"
-			HorizontalAlignment="Left"
-			VerticalAlignment="Top"
-			Width="{Binding BorderCell}"
-			Height="{Binding BorderCell}">
-		<ItemsControl ItemsSource="{Binding Particles,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
+		<ItemsControl ItemsSource="{Binding Particles,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
+		              HorizontalAlignment="Left" VerticalAlignment="Top"
+		              BorderBrush="DimGray" BorderThickness="2"
+		              Width="{Binding BorderCell}"
+		              Height="{Binding BorderCell}">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
-					<Canvas Background="AliceBlue" HorizontalAlignment="Left" VerticalAlignment="Top" Width="{Binding SizeCell}" Height="{Binding SizeCell}">
+					<Canvas Background="AliceBlue" HorizontalAlignment="Left" VerticalAlignment="Top" Width="{Binding SizeCell}" Height="{Binding SizeCell}"
+					        ClipToBounds="True">
 						<Canvas.RenderTransform>
 							<ScaleTransform ScaleX="7e10" ScaleY="7e10" CenterX="0" CenterY="0"></ScaleTransform>
 						</Canvas.RenderTransform>
@@ -43,20 +41,19 @@
 
 			<ItemsControl.ItemContainerStyle>
 				<Style TargetType="ContentPresenter">
-					<Setter Property="Canvas.Left" Value="{Binding  X , Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-					<Setter Property="Canvas.Top" Value="{Binding  Y, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+					<Setter Property="Canvas.Left" Value="{Binding  XCnvs , Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+					<Setter Property="Canvas.Top" Value="{Binding  YCnvs, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
 
 				</Style>
 			</ItemsControl.ItemContainerStyle>
 
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
-					<Ellipse Fill="Red"   Width="{Binding Diameter}" Height="{Binding Diameter}" />
+					<Ellipse Fill="Red" Width="{Binding Diameter}" Height="{Binding Diameter}" />
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
 
 		</ItemsControl>
-		</Border>
 		<Grid Grid.Column="1" >
 			<oxy:PlotView x:Name="Plot1"  Model="{Binding PlotModels}" Margin="10" Grid.Row="1">
 			</oxy:PlotView>
