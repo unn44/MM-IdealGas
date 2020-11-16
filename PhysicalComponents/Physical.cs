@@ -11,19 +11,13 @@ namespace MM_IdealGas.PhysicalComponents
     {
         #region Поля класса, константы и логика инициализации
         /// <summary>
-        /// Множитель, "убирающий" лишние нули из СИ величин, обеспечивающий тем самым увеличение точности вычислений.
-        /// </summary>
-        private const double MachineMultiplier = 1e9 * 50/*чуть крупней*/;
-        
-        
-        /// <summary>
         /// Равновесное расстояние между центрами атомов (м).
         /// </summary>
-        private const double A = 0.382 * 1e-9 * MachineMultiplier;
+        private const double A = 0.382 * 1e-9;
         /// <summary>
         /// Модуль потенц. энергии взаимодействия между атомами при равновесии (Дж). 
         /// </summary>
-        private const double D = 0.0103 * MachineMultiplier * 1.6e-19; // 0.0103 эВ переведены в Дж
+        private const double D = 0.0103 * 1.6e-19; // 0.0103 эВ переведены в Дж
         /// <summary>
         /// Ширина / высота квадрата (ед.).
         /// </summary>
@@ -39,7 +33,7 @@ namespace MM_IdealGas.PhysicalComponents
         /// <summary>
         /// Масса частицы (кг).
         /// </summary>
-        private const double Mass = 39.948 * MachineMultiplier * 1.66054e-27; // 39.948 а.е.м. переведены в кг
+        private const double Mass = 39.948 * 1.66054e-27; // 39.948 а.е.м. переведены в кг
         
         /// <summary>
         /// Общее количество частиц.
@@ -253,8 +247,8 @@ namespace MM_IdealGas.PhysicalComponents
         {
             _particleNumber = particleNumber;
             _marginInit = marginInit * A;
-            _u0MaxInit = u0MaxInit * MachineMultiplier;
-            _timeDelta = timeDelta * MachineMultiplier;
+            _u0MaxInit = u0MaxInit;
+            _timeDelta = timeDelta;
             _timeCounts = timeCounts;
             _r1 = coeffR1 * A;
             _r2 = coeffR2 * A;

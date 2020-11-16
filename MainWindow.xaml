@@ -26,7 +26,11 @@
 		<ItemsControl ItemsSource="{Binding Particles,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
-					<Canvas Background="AliceBlue" HorizontalAlignment="Left" VerticalAlignment="Top" Width="{Binding SizeCell}" Height="{Binding SizeCell}"/>
+					<Canvas Background="AliceBlue" HorizontalAlignment="Left" VerticalAlignment="Top" Width="{Binding SizeCell}" Height="{Binding SizeCell}">
+						<Canvas.RenderTransform>
+							<ScaleTransform ScaleX="7e10" ScaleY="7e10" CenterX="0" CenterY="0"></ScaleTransform>
+						</Canvas.RenderTransform>
+					</Canvas>
 				</ItemsPanelTemplate>
 			</ItemsControl.ItemsPanel>
 

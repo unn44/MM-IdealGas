@@ -82,7 +82,7 @@ namespace MM_IdealGas
 		}
 		public int ParticleNumber { get; set; } = 50;
 		public double MarginInit { get; set; } = 0.9;
-		public double U0MaxInit { get; set; } = 1e-8;
+		public double U0MaxInit { get; set; } = 100;
 		public double CoeffR1 { get; set; } = 1.1;
 		public double CoeffR2 { get; set; } = 1.8;
 		public double TimeDelta { get; set; } = 2e-14;
