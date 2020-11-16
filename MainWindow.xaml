@@ -4,36 +4,30 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MM_IdealGas"
-	 xmlns:oxy="http://oxyplot.org/wpf"
-		xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+		xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
-        Title="2D Ideal gas" Height="1050" Width="1450">
+        Title="2D Ideal gas" Height="969" Width="1680" MinHeight="969">
 	<Window.DataContext>
 		<local:ViewModel/>
 	</Window.DataContext>
-	<i:Interaction.Triggers>
-		<i:EventTrigger EventName="SizeChanged">
-			<i:InvokeCommandAction
-                            Command="{Binding Transform}" />
-		</i:EventTrigger>
-	</i:Interaction.Triggers>
 	<Grid>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="1000"/>
-			<ColumnDefinition/>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="*"/>
 			<ColumnDefinition Width="200"/>
 		</Grid.ColumnDefinitions>
 		<ItemsControl ItemsSource="{Binding Particles,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
-		              HorizontalAlignment="Left" VerticalAlignment="Top"
-		              BorderBrush="DimGray" BorderThickness="2"
-		              Width="{Binding BorderCell}"
-		              Height="{Binding BorderCell}">
+		              HorizontalAlignment="Left" VerticalAlignment="Center"
+		              Margin="5"
+		              BorderBrush="DimGray" BorderThickness="{Binding CanvasBorderThickness}"
+		              Width="{Binding CanvasSize}"
+		              Height="{Binding CanvasSize}">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
-					<Canvas Background="AliceBlue" HorizontalAlignment="Left" VerticalAlignment="Top" Width="{Binding SizeCell}" Height="{Binding SizeCell}"
+					<Canvas Background="GhostWhite" HorizontalAlignment="Left" VerticalAlignment="Top" Width="{Binding SizeCell}" Height="{Binding SizeCell}"
 					        ClipToBounds="True">
 						<Canvas.RenderTransform>
-							<ScaleTransform ScaleX="7e10" ScaleY="7e10" CenterX="0" CenterY="0"></ScaleTransform>
+							<ScaleTransform ScaleX="{Binding CanvasZoom}" ScaleY="{Binding CanvasZoom}" CenterX="0" CenterY="0"></ScaleTransform>
 						</Canvas.RenderTransform>
 					</Canvas>
 				</ItemsPanelTemplate>
@@ -49,7 +43,7 @@
 
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
-					<Ellipse Fill="Red" Width="{Binding Diameter}" Height="{Binding Diameter}" />
+					<Ellipse Fill="Crimson" Width="{Binding Diameter}" Height="{Binding Diameter}" />
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
 

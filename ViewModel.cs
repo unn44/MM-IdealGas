@@ -24,7 +24,7 @@ namespace MM_IdealGas
 		private PlotModel plotModel;
 		public PlotModel PlotModels
 		{
-			get { return plotModel; }
+			get => plotModel;
 			set { plotModel = value; OnPropertyChanged("PlotModel"); }
 		}
 
@@ -59,28 +59,12 @@ namespace MM_IdealGas
 				OnPropertyChanged();
 			}
 		}
-		public double BorderCell { get; set; }
-
-		private double _windowHeight;
-		public double WindowHeight
-		{
-			get => _windowHeight;
-			set
-			{
-				_windowHeight = value;
-				OnPropertyChanged();
-			}
-		}
-		private double _windowWidth;
-		public double WindowWidth
-		{
-			get => _windowWidth;
-			set
-			{
-				_windowWidth = value;
-				OnPropertyChanged();
-			}
-		}
+		
+		public double CanvasBorderThickness { get; set; } = 2;
+		public double CanvasSize { get; set; }
+		public double CanvasZoom { get; set; } = 8e10; // коэффициент масштабирования канваса
+		
+		
 		public int ParticleNumber { get; set; } = 50;
 		public double MarginInit { get; set; } = 0.9;
 		public double U0MaxInit { get; set; } = 100;
@@ -91,7 +75,6 @@ namespace MM_IdealGas
 
 		public ICommand Generate { get; set; }
 		public ICommand Start { get; set; }
-		public ICommand Transform { get; set; }
 
 		private ObservableCollection<Particle> _particles;
 		public ObservableCollection<Particle> Particles
@@ -108,8 +91,6 @@ namespace MM_IdealGas
 		{
 			PlotModels = new PlotModel { Title = "Example 1" };
 			PlotModels.Series.Add(new FunctionSeries(Math.Cos, 0, 10, 0.1, "cos(x)"));
-			_windowHeight = 800;
-			_windowWidth = 1000;
 			_timer = new Timer(1); //TODO: подобрать правильный шаг!
 			_timer.Elapsed += OnTimedEvent;
 			_timerTick = 0;
@@ -120,7 +101,7 @@ namespace MM_IdealGas
 			_physical.GenerateInitState();
 
 			SizeCell = Physical.GetCellSize(); // потому что нету нормального "половинного" деления частицы
-			BorderCell = SizeCell * 7e10 + 4;
+			CanvasSize = SizeCell * CanvasZoom + CanvasBorderThickness* 2 /* т.к. границы с двух сторон*/;
 
 			Particles = _physical.GetParticlesCollection(_timerTick++);
 
@@ -139,19 +120,6 @@ namespace MM_IdealGas
 			{
 				SetTimer();
 			});
-			Transform = new RelayCommand(o =>
-			{
-				TransformPanel();
-			});
-		}
-		/// <summary>
-		/// Функция вызываемая при изменении размеров окна
-		/// </summary>
-		private void TransformPanel()
-		{
-			//MachineMultiplier= чему-то там, по идее  она констнта, её хуй поменяешь, но надо , или заново мир генерировать
-			_timer.Enabled = false;
-			_timer.Enabled = true;
 		}
 
 		private void SetTimer()
