@@ -23,6 +23,13 @@
 			<ColumnDefinition/>
 			<ColumnDefinition Width="200"/>
 		</Grid.ColumnDefinitions>
+		<Border
+			BorderThickness="2"
+			BorderBrush="DimGray"
+			HorizontalAlignment="Left"
+			VerticalAlignment="Top"
+			Width="{Binding BorderCell}"
+			Height="{Binding BorderCell}">
 		<ItemsControl ItemsSource="{Binding Particles,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
@@ -49,6 +56,7 @@
 			</ItemsControl.ItemTemplate>
 
 		</ItemsControl>
+		</Border>
 		<Grid Grid.Column="1" >
 			<oxy:PlotView x:Name="Plot1"  Model="{Binding PlotModels}" Margin="10" Grid.Row="1">
 			</oxy:PlotView>

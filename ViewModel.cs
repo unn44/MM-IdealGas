@@ -59,6 +59,7 @@ namespace MM_IdealGas
 				OnPropertyChanged();
 			}
 		}
+		public double BorderCell { get; set; }
 
 		private double _windowHeight;
 		public double WindowHeight
@@ -87,7 +88,6 @@ namespace MM_IdealGas
 		public double CoeffR2 { get; set; } = 1.8;
 		public double TimeDelta { get; set; } = 2e-14;
 		public int TimeCounts { get; set; } = 500;
-
 
 		public ICommand Generate { get; set; }
 		public ICommand Start { get; set; }
@@ -120,7 +120,7 @@ namespace MM_IdealGas
 			_physical.GenerateInitState();
 
 			SizeCell = Physical.GetCellSize() + Physical.GetParticleSize(); // потому что нету нормального "половинного" деления частицы
-
+			BorderCell = SizeCell * 7e10 + 4;
 
 			Particles = _physical.GetParticlesCollection(_timerTick++);
 

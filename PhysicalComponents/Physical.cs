@@ -266,6 +266,11 @@ namespace MM_IdealGas.PhysicalComponents
 
             var betweenParticles = _marginInit + doubleRadius; //минимальное допустимое расстояние между частицами.
             var marginBorder = _marginInit / 2.0 + ParticleRadius; //минимальное допустимое расстояние от границ.
+
+            /*for (var i = 0; i < 30; i++)
+            {
+                _particles.Add(new Particle(i*A, 0, RandomParticleU0(), RandomParticleU0()));
+            }*/
             
             while (true)
             {
