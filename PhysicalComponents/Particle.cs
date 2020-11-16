@@ -19,7 +19,7 @@ namespace MM_IdealGas.PhysicalComponents
 		}
 
 		private double x, y;
-		private double xCnvs, yCnvs;
+		private double _margin;
 
 		/// <summary>
 		/// Координата X центра частицы.
@@ -30,8 +30,8 @@ namespace MM_IdealGas.PhysicalComponents
 			set
 			{
 				x = value;
-				xCnvs = x - Diameter / 2.0;
-				OnPropertyChanged(nameof(XCnvs));
+				Xcanvas = x - _margin;
+				OnPropertyChanged(nameof(Xcanvas));
 				OnPropertyChanged();
 			}
 		}
@@ -44,23 +44,20 @@ namespace MM_IdealGas.PhysicalComponents
 			set
 			{
 				y = value;
-				yCnvs = y - Diameter / 2.0;
-				OnPropertyChanged(nameof(YCnvs));
+				Ycanvas = y - _margin;
+				OnPropertyChanged(nameof(Ycanvas));
 				OnPropertyChanged();
 			}
 		}
+		/// <summary>
+		/// Отцентрированная координата X центра частицы для построения на канвасе.
+		/// </summary>
+		public double Xcanvas { get; set; }
+		/// <summary>
+		/// Отцентрированная координата Y центра частицы для построения на канвасе.
+		/// </summary>
+		public double Ycanvas { get; set; }
 
-		public double XCnvs
-		{
-			get => xCnvs;
-			set => xCnvs = value;
-		}
-
-		public double YCnvs
-		{
-			get => yCnvs;
-			set => yCnvs = value;
-		}
 
 
 		/// <summary>
@@ -83,8 +80,10 @@ namespace MM_IdealGas.PhysicalComponents
             Ux = ux;
             Uy = uy;
             
-            XCnvs = X - Diameter / 2.0;
-            YCnvs = Y - Diameter / 2.0;
+            _margin = Diameter / 2.0;
+            
+            Xcanvas = X - _margin;
+            Ycanvas = Y - _margin;
         }
     }
 }

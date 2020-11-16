@@ -41,8 +41,8 @@
 
 			<ItemsControl.ItemContainerStyle>
 				<Style TargetType="ContentPresenter">
-					<Setter Property="Canvas.Left" Value="{Binding  XCnvs , Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-					<Setter Property="Canvas.Top" Value="{Binding  YCnvs, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+					<Setter Property="Canvas.Left" Value="{Binding  Xcanvas , Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+					<Setter Property="Canvas.Top" Value="{Binding  Ycanvas, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
 
 				</Style>
 			</ItemsControl.ItemContainerStyle>
