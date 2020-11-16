@@ -91,7 +91,7 @@ namespace MM_IdealGas
 		{
 			PlotModels = new PlotModel { Title = "Example 1" };
 			PlotModels.Series.Add(new FunctionSeries(Math.Cos, 0, 10, 0.1, "cos(x)"));
-			_timer = new Timer(1); //TODO: подобрать правильный шаг!
+			_timer = new Timer(1);
 			_timer.Elapsed += OnTimedEvent;
 			_timerTick = 0;
 			CountSteps = $"Количество шагов: {_timerTick} ";
