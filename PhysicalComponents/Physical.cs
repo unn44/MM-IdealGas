@@ -212,7 +212,9 @@ namespace MM_IdealGas.PhysicalComponents
         {
             var coordK = direction==1 ? _particles[index].X : _particles[index].Y; //координата на текущем шаге.
             var velK = direction==1 ? _particles[index].Ux : _particles[index].Uy; //скорость на текущем шаге.
-            forceK = ForceForOneParticle(index, direction);
+            forceK =  ForceForOneParticle(index, direction);
+
+            if (direction == 1) _particles[index].Fx = forceK; else _particles[index].Fy = forceK; 
             
             return coordK + velK * _timeDelta + forceK * _timeDelta * _timeDelta / (2*Mass);
         }

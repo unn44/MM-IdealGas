@@ -69,6 +69,8 @@ namespace MM_IdealGas.PhysicalComponents
 		/// Скорость частицы.
 		/// </summary>
 		public double Ux, Uy;
+		
+		public double Fx, Fy;
 
 		/// <summary>
 		/// Конструктор: явная инициализация координат и скоростей частицы.

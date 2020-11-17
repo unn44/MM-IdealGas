@@ -22,17 +22,37 @@ namespace MM_IdealGas
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
-		private List<DataPoint> points;
-       public List<DataPoint> Points
+		private List<DataPoint> pointsKinetic, pointsPotential, pointsEnergy;
+       public List<DataPoint> PointsKinetic
 		{
-			get => points;
+			get => pointsKinetic;
 			set
 			{
 
-				points = value;
+				pointsKinetic = value;
 				OnPropertyChanged();
 			}
 		}
+       public List<DataPoint> PointsPotential
+       {
+	       get => pointsPotential;
+	       set
+	       {
+
+		       pointsPotential = value;
+		       OnPropertyChanged();
+	       }
+       }
+       public List<DataPoint> PointsEnergy
+       {
+	       get => pointsEnergy;
+	       set
+	       {
+
+		       pointsEnergy = value;
+		       OnPropertyChanged();
+	       }
+       }
 
 
 
@@ -97,7 +117,7 @@ namespace MM_IdealGas
 		private int _invalidateFlag = 0;
 		public int InvalidateFlag
 		{
-			get { return _invalidateFlag; }
+			get => _invalidateFlag;
 			set
 			{
 				_invalidateFlag = value;
@@ -107,12 +127,11 @@ namespace MM_IdealGas
 
 		public ViewModel()
 		{
-			points = new List<DataPoint>
-							  {
-								  new DataPoint(0, 4),
-							  };
+			pointsKinetic = new List<DataPoint>();
+			pointsPotential = new List<DataPoint>();
+			pointsEnergy = new List<DataPoint>();
 
-			_timer = new Timer(1);
+				_timer = new Timer(1);
 			_timer.Elapsed += OnTimedEvent;
 			_timerTick = 0;
 			CountSteps = $"Количество шагов: {_timerTick} ";
@@ -163,16 +182,49 @@ namespace MM_IdealGas
 		private void OnTimedEvent(object source, ElapsedEventArgs e)
 		{
 			InvalidateFlag++;
-			if (Points.Count > 1000)
-			{
-				Points.RemoveRange(0, 1);
-			}
-				Points.Add(new DataPoint(InvalidateFlag, InvalidateFlag));
 			_timerTick++;
-				Particles = _physical.GetParticlesCollection();
+			
+			Particles = _physical.GetParticlesCollection();
+			if (PointsKinetic.Count > 1000) PointsKinetic.RemoveRange(0, 1);
+			if (PointsPotential.Count > 1000) PointsPotential.RemoveRange(0, 1);
+			if (PointsEnergy.Count > 1000) PointsEnergy.RemoveRange(0, 1);
+			var kinetic = CalсKinetic();
+			var potential = CalcPotential();
+			var energy = kinetic + potential;
+			PointsKinetic.Add(new DataPoint(_timerTick, kinetic));
+			PointsPotential.Add(new DataPoint(_timerTick, potential));
+			PointsEnergy.Add(new DataPoint(_timerTick, energy));
 			CountSteps = $"Количество шагов: {_timerTick} ";
 		}
 
+		private double CalсKinetic()
+		{
+			double avgUx = 0.0, avgUy = 0.0;
+			foreach (var par in Particles)
+			{
+				avgUx += par.Ux;
+				avgUy += par.Uy;
+			}
+
+			avgUx /= ParticleNumber;
+			avgUy /= ParticleNumber;
+
+			var avgU = Math.Sqrt(avgUx * avgUx + avgUy * avgUy);
+			const double Mass = 39.948 * 1.66054e-27; // константа массы частицы
+			return Mass * avgU * avgU / 2.0;
+		}
+
+		private double CalcPotential()
+		{
+			double sumUx = 0.0, sumUy = 0.0;
+			foreach (var par in Particles)
+			{
+				sumUx += par.Fx *-1; // бред? возможно...
+				sumUy += par.Fy *-1;
+			}
+			
+			return Math.Sqrt(sumUx * sumUx + sumUy * sumUy);
+		}
 
 	}
 }
