@@ -9,6 +9,7 @@ using OxyPlot;
 using Timer = System.Timers.Timer;
 using OxyPlot.Series;
 using System;
+using System.Collections.Generic;
 
 namespace MM_IdealGas
 {
@@ -21,12 +22,18 @@ namespace MM_IdealGas
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
-		private PlotModel plotModel;
-		public PlotModel PlotModels
+		private List<DataPoint> points;
+       public List<DataPoint> Points
 		{
-			get => plotModel;
-			set { plotModel = value; OnPropertyChanged("PlotModel"); }
+			get => points;
+			set
+			{
+
+				points = value;
+				OnPropertyChanged();
+			}
 		}
+
 
 
 		private readonly Timer _timer;
@@ -87,10 +94,24 @@ namespace MM_IdealGas
 				OnPropertyChanged(nameof(Particles));
 			}
 		}
+		private int _invalidateFlag = 0;
+		public int InvalidateFlag
+		{
+			get { return _invalidateFlag; }
+			set
+			{
+				_invalidateFlag = value;
+				OnPropertyChanged();
+			}
+		}
+
 		public ViewModel()
 		{
-			PlotModels = new PlotModel { Title = "Example 1" };
-			PlotModels.Series.Add(new FunctionSeries(Math.Cos, 0, 10, 0.1, "cos(x)"));
+			points = new List<DataPoint>
+							  {
+								  new DataPoint(0, 4),
+							  };
+
 			_timer = new Timer(1);
 			_timer.Elapsed += OnTimedEvent;
 			_timerTick = 0;
@@ -141,8 +162,14 @@ namespace MM_IdealGas
 
 		private void OnTimedEvent(object source, ElapsedEventArgs e)
 		{
+			InvalidateFlag++;
+			if (Points.Count > 1000)
+			{
+				Points.RemoveRange(0, 1);
+			}
+				Points.Add(new DataPoint(InvalidateFlag, InvalidateFlag));
 			_timerTick++;
-			Particles = _physical.GetParticlesCollection();
+				Particles = _physical.GetParticlesCollection();
 			CountSteps = $"Количество шагов: {_timerTick} ";
 		}
 

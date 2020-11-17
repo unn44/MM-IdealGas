@@ -16,6 +16,7 @@
 			<ColumnDefinition Width="*"/>
 			<ColumnDefinition Width="200"/>
 		</Grid.ColumnDefinitions>
+
 		<ItemsControl ItemsSource="{Binding Particles,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"
 		              HorizontalAlignment="Left" VerticalAlignment="Center"
 		              Margin="5"
@@ -48,9 +49,28 @@
 			</ItemsControl.ItemTemplate>
 
 		</ItemsControl>
+		
 		<Grid Grid.Column="1" >
-			<oxy:PlotView x:Name="Plot1"  Model="{Binding PlotModels}" Margin="10" Grid.Row="1">
-			</oxy:PlotView>
+			<Grid.RowDefinitions>
+				<RowDefinition/>
+				<RowDefinition/>
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}"  Margin="10" Grid.Row="0">
+				<oxy:Plot.Series>
+					<oxy:LineSeries ItemsSource="{Binding Points}"/>
+				</oxy:Plot.Series>
+			</oxy:Plot>
+			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}"  Margin="10" Grid.Row="1">
+				<oxy:Plot.Series>
+					<oxy:LineSeries ItemsSource="{Binding Points}"/>
+				</oxy:Plot.Series>
+			</oxy:Plot>
+			<oxy:Plot  InvalidateFlag="{Binding InvalidateFlag}"  Margin="10" Grid.Row="2">
+				<oxy:Plot.Series>
+					<oxy:LineSeries ItemsSource="{Binding Points}"/>
+				</oxy:Plot.Series>
+			</oxy:Plot>
 		</Grid>
 		<StackPanel Grid.Column="2" Margin="0,0,10,0">
 			<Label Content="Количество частиц"/>
