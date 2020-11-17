@@ -10,6 +10,7 @@ using Timer = System.Timers.Timer;
 using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MM_IdealGas
 {
@@ -172,6 +173,7 @@ namespace MM_IdealGas
 			var kinetic = CalсKinetic();
 			var potential = CalcPotential();
 			var energy = kinetic + potential;
+			
 			PointsKinetic.Add(new DataPoint(_timerTick, kinetic));
 			PointsPotential.Add(new DataPoint(_timerTick, potential));
 			PointsEnergy.Add(new DataPoint(_timerTick, energy));
@@ -202,14 +204,7 @@ namespace MM_IdealGas
 
 		private double CalcPotential()
 		{
-			double sumUx = 0.0, sumUy = 0.0;
-			foreach (var par in Particles)
-			{
-				sumUx += par.Fx *-1; // бред? возможно...
-				sumUy += par.Fy *-1;
-			}
-			
-			return Math.Sqrt(sumUx * sumUx + sumUy * sumUy);
+			return Particles.Sum(par => Math.Sqrt(par.Fx * par.Fx + par.Fy * par.Fy));
 		}
 
 	}
