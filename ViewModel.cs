@@ -178,9 +178,9 @@ namespace MM_IdealGas
 			PointsPotential.Add(new DataPoint(_timerTick, potential));
 			PointsEnergy.Add(new DataPoint(_timerTick, energy));
 			
-			if (PointsKinetic.Count > 1000) PointsKinetic.RemoveRange(0, 1);
-			if (PointsPotential.Count > 1000) PointsPotential.RemoveRange(0, 1);
-			if (PointsEnergy.Count > 1000) PointsEnergy.RemoveRange(0, 1);
+			if (PointsKinetic.Count > 500) PointsKinetic.RemoveRange(0, 1);
+			if (PointsPotential.Count > 500) PointsPotential.RemoveRange(0, 1);
+			if (PointsEnergy.Count > 500) PointsEnergy.RemoveRange(0, 1);
 			
 			CountSteps = $"Количество шагов: {_timerTick} ";
 		}

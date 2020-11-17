@@ -56,19 +56,19 @@
 				<RowDefinition/>
 				<RowDefinition/>
 			</Grid.RowDefinitions>
-			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}"  Margin="10" Grid.Row="0">
+			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}" Title="Energy" Margin="10" Grid.Row="0">
+				<oxy:Plot.Series>
+					<oxy:LineSeries ItemsSource="{Binding PointsEnergy}"/>
+				</oxy:Plot.Series>
+			</oxy:Plot>
+			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}" Title="Kinetic" Margin="10" Grid.Row="1">
 				<oxy:Plot.Series>
 					<oxy:LineSeries ItemsSource="{Binding PointsKinetic}"/>
 				</oxy:Plot.Series>
 			</oxy:Plot>
-			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}"  Margin="10" Grid.Row="1">
+			<oxy:Plot  InvalidateFlag="{Binding InvalidateFlag}" Title="Potential"  Margin="10" Grid.Row="2">
 				<oxy:Plot.Series>
 					<oxy:LineSeries ItemsSource="{Binding PointsPotential}"/>
-				</oxy:Plot.Series>
-			</oxy:Plot>
-			<oxy:Plot  InvalidateFlag="{Binding InvalidateFlag}"  Margin="10" Grid.Row="2">
-				<oxy:Plot.Series>
-					<oxy:LineSeries ItemsSource="{Binding PointsEnergy}"/>
 				</oxy:Plot.Series>
 			</oxy:Plot>
 		</Grid>
