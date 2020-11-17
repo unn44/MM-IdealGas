@@ -22,40 +22,7 @@ namespace MM_IdealGas
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
-		private List<DataPoint> pointsKinetic, pointsPotential, pointsEnergy;
-       public List<DataPoint> PointsKinetic
-		{
-			get => pointsKinetic;
-			set
-			{
-
-				pointsKinetic = value;
-				OnPropertyChanged();
-			}
-		}
-       public List<DataPoint> PointsPotential
-       {
-	       get => pointsPotential;
-	       set
-	       {
-
-		       pointsPotential = value;
-		       OnPropertyChanged();
-	       }
-       }
-       public List<DataPoint> PointsEnergy
-       {
-	       get => pointsEnergy;
-	       set
-	       {
-
-		       pointsEnergy = value;
-		       OnPropertyChanged();
-	       }
-       }
-
-
-
+		
 		private readonly Timer _timer;
 		private int _timerTick;
 
@@ -114,7 +81,9 @@ namespace MM_IdealGas
 				OnPropertyChanged(nameof(Particles));
 			}
 		}
-		private int _invalidateFlag = 0;
+
+		#region Charts
+		private int _invalidateFlag;
 		public int InvalidateFlag
 		{
 			get => _invalidateFlag;
@@ -124,14 +93,15 @@ namespace MM_IdealGas
 				OnPropertyChanged();
 			}
 		}
-
+		public List<DataPoint> PointsKinetic { get; set; }
+		public List<DataPoint> PointsPotential { get; set; }
+		public List<DataPoint> PointsEnergy { get; set; }
+		#endregion
+		
 		public ViewModel()
 		{
-			pointsKinetic = new List<DataPoint>();
-			pointsPotential = new List<DataPoint>();
-			pointsEnergy = new List<DataPoint>();
 
-				_timer = new Timer(1);
+			_timer = new Timer(1);
 			_timer.Elapsed += OnTimedEvent;
 			_timerTick = 0;
 			CountSteps = $"Количество шагов: {_timerTick} ";
@@ -144,6 +114,14 @@ namespace MM_IdealGas
 			CanvasSize = SizeCell * CanvasZoom + CanvasBorderThickness* 2 /* т.к. границы с двух сторон*/;
 
 			Particles = _physical.GetParticlesCollection(_timerTick++);
+			
+			/*var kinetic = CalсKinetic();
+			var potential = CalcPotential();
+			var energy = kinetic + potential;*/
+			InvalidateFlag = 0;
+			PointsKinetic = new List<DataPoint>();
+			PointsPotential = new List<DataPoint>();
+			PointsEnergy = new List<DataPoint>();
 
 			Generate = new RelayCommand(o =>
 			{
@@ -154,6 +132,11 @@ namespace MM_IdealGas
 				_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
 				_physical.GenerateInitState();
 				Particles = _physical.GetParticlesCollection(0);
+				
+				InvalidateFlag = 0;
+				PointsKinetic.Clear();
+				PointsPotential.Clear();
+				PointsEnergy.Clear();
 			});
 
 			Start = new RelayCommand(o =>
@@ -181,19 +164,22 @@ namespace MM_IdealGas
 
 		private void OnTimedEvent(object source, ElapsedEventArgs e)
 		{
-			InvalidateFlag++;
+			InvalidateFlag++; // для OxyPlot
 			_timerTick++;
 			
 			Particles = _physical.GetParticlesCollection();
-			if (PointsKinetic.Count > 1000) PointsKinetic.RemoveRange(0, 1);
-			if (PointsPotential.Count > 1000) PointsPotential.RemoveRange(0, 1);
-			if (PointsEnergy.Count > 1000) PointsEnergy.RemoveRange(0, 1);
+
 			var kinetic = CalсKinetic();
 			var potential = CalcPotential();
 			var energy = kinetic + potential;
 			PointsKinetic.Add(new DataPoint(_timerTick, kinetic));
 			PointsPotential.Add(new DataPoint(_timerTick, potential));
 			PointsEnergy.Add(new DataPoint(_timerTick, energy));
+			
+			if (PointsKinetic.Count > 1000) PointsKinetic.RemoveRange(0, 1);
+			if (PointsPotential.Count > 1000) PointsPotential.RemoveRange(0, 1);
+			if (PointsEnergy.Count > 1000) PointsEnergy.RemoveRange(0, 1);
+			
 			CountSteps = $"Количество шагов: {_timerTick} ";
 		}
 
