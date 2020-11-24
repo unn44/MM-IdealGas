@@ -97,12 +97,13 @@ namespace MM_IdealGas
 		public List<DataPoint> PointsKinetic { get; set; }
 		public List<DataPoint> PointsPotential { get; set; }
 		public List<DataPoint> PointsEnergy { get; set; }
+		public List<DataPoint> PointsTemperature { get; set; }
 		#endregion
 		
 		public ViewModel()
 		{
 
-			_timer = new Timer(1);
+			_timer = new Timer(5); //??
 			_timer.Elapsed += OnTimedEvent;
 			_timerTick = 0;
 			CountSteps = $"Количество шагов: {_timerTick} ";
@@ -123,6 +124,7 @@ namespace MM_IdealGas
 			PointsKinetic = new List<DataPoint>();
 			PointsPotential = new List<DataPoint>();
 			PointsEnergy = new List<DataPoint>();
+			PointsTemperature = new List<DataPoint>();
 
 			Generate = new RelayCommand(o =>
 			{
@@ -138,6 +140,7 @@ namespace MM_IdealGas
 				PointsKinetic.Clear();
 				PointsPotential.Clear();
 				PointsEnergy.Clear();
+				PointsTemperature.Clear();
 			});
 
 			Start = new RelayCommand(o =>
@@ -171,40 +174,44 @@ namespace MM_IdealGas
 			Particles = _physical.GetParticlesCollection();
 
 			var kinetic = CalсKinetic();
-			var potential = CalcPotential();
-			var energy = kinetic + potential;
+			var potential = _physical.GetPotential();
+			var energy = kinetic*1e10 + potential*1e10;
+			energy /= 1e10;
+			var temperature = CalcTemperature(kinetic);
 			
 			PointsKinetic.Add(new DataPoint(_timerTick, kinetic));
 			PointsPotential.Add(new DataPoint(_timerTick, potential));
 			PointsEnergy.Add(new DataPoint(_timerTick, energy));
-			
+			PointsTemperature.Add(new DataPoint(_timerTick, temperature));
+
 			if (PointsKinetic.Count > 500) PointsKinetic.RemoveRange(0, 1);
 			if (PointsPotential.Count > 500) PointsPotential.RemoveRange(0, 1);
 			if (PointsEnergy.Count > 500) PointsEnergy.RemoveRange(0, 1);
+			if (PointsTemperature.Count > 500) PointsTemperature.RemoveRange(0, 1);
 			
 			CountSteps = $"Количество шагов: {_timerTick} ";
 		}
 
 		private double CalсKinetic()
 		{
-			double avgUx = 0.0, avgUy = 0.0;
-			foreach (var par in Particles)
-			{
-				avgUx += par.Ux;
-				avgUy += par.Uy;
-			}
+			var avgU2 = Particles.Sum(par => par.Ux * par.Ux + par.Uy * par.Uy);
+			avgU2 /= ParticleNumber;
 
-			avgUx /= ParticleNumber;
-			avgUy /= ParticleNumber;
-
-			var avgU = Math.Sqrt(avgUx * avgUx + avgUy * avgUy);
-			const double Mass = 39.948 * 1.66054e-27; // константа массы частицы
-			return Mass * avgU * avgU / 2.0;
+			const double mass = 39.948 * 1.66054e-27; // константа массы частицы
+			return mass * avgU2 / 2.0;
 		}
 
 		private double CalcPotential()
 		{
-			return Particles.Sum(par => Math.Sqrt(par.Fx * par.Fx + par.Fy * par.Fy));
+			//return Particles.Sum(par => Math.Sqrt(par.Fx * par.Fx + par.Fy * par.Fy));
+			return -1;
+		}
+
+		private double CalcTemperature(double kinetic)
+		{
+			const double k = 1.38 * 1e-23; //Дж/К
+
+			return kinetic * 2.0 / 3.0 / k;
 		}
 
 	}

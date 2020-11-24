@@ -86,6 +86,11 @@ namespace MM_IdealGas.PhysicalComponents
 		private readonly Random _rnd;
 
         /// <summary>
+        /// Половина суммы потенциалов.
+        /// </summary>
+        private double _potentialSum;
+        
+        /// <summary>
         /// Конструктор: инициализация коллекции частиц и рандома. 
         /// </summary>
         public Physical()
@@ -173,6 +178,15 @@ namespace MM_IdealGas.PhysicalComponents
             if (r > _r2) return 0;
             return Math.Pow(1.0 - Math.Pow((r - _r1) / (_r1 - _r2), 2), 2);
         }
+
+        private double Potential(double r)
+        {
+            /*var sig = A / Math.Pow(2, 1.0 / 6.0);
+
+            return 4 * D * (Math.Pow(sig / r, 12) + Math.Pow(sig / r, 6)) * FuncK(r);*/
+
+            return D * (Math.Pow(A / r, 12) - 2 * Math.Pow(A / r, 6));
+        }
         #endregion
         #region Функции, необходимые для расчёта след. шага
         /// <summary>
@@ -192,6 +206,9 @@ namespace MM_IdealGas.PhysicalComponents
                 double othX = _particles[i].X, othY = _particles[i].Y;
                 var dist = SmartDistance(curX, curY, othX, othY); //Rik
                 var k = FuncK(dist);
+                
+                _potentialSum += Potential(dist); // вклинил расчёт потенциалов сюда.
+                
                 if (k==0.0) continue;
                 var dxdy = direction == 1 ? DxyThroughBorder(curX, othX) : DxyThroughBorder(curY, othY); //dx or dy 
                 sum += (Math.Pow(A / dist, 6) - 1) * dxdy / Math.Pow(dist, 8) * k;
@@ -291,6 +308,7 @@ namespace MM_IdealGas.PhysicalComponents
         private void DoTimeStep()
         {
             var i = 0;
+            _potentialSum = 0.0;
             foreach (var particle in _particles)
             {
                 double forceX = 0.0, forceY = 0.0;
@@ -299,6 +317,7 @@ namespace MM_IdealGas.PhysicalComponents
                 particle.Ux = VelocityNext(i, 1, forceX);
                 particle.Uy = VelocityNext(i++, 2, forceY);
             }
+            _potentialSum /= 2.0; // нужна только половина
         }
         /// <summary>
         /// Рассчитать все шаги по времени и сохранить их в коллекцию коллекций.
@@ -333,5 +352,6 @@ namespace MM_IdealGas.PhysicalComponents
 
         public static double GetCellSize() => CellSize;
         public static double GetParticleSize() => ParticleRadius*2;
+        public double GetPotential() => _potentialSum;
     }
 }

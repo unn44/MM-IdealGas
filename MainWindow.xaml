@@ -55,20 +55,26 @@
 				<RowDefinition/>
 				<RowDefinition/>
 				<RowDefinition/>
+				<RowDefinition/>
 			</Grid.RowDefinitions>
-			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}" Title="Energy" Margin="10" Grid.Row="0">
+			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}" Title="Энергия системы, Дж" Margin="10" Grid.Row="0">
 				<oxy:Plot.Series>
 					<oxy:LineSeries ItemsSource="{Binding PointsEnergy}"/>
 				</oxy:Plot.Series>
 			</oxy:Plot>
-			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}" Title="Kinetic" Margin="10" Grid.Row="1">
+			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}" Title="Кинетическая, Дж" Margin="10" Grid.Row="1">
 				<oxy:Plot.Series>
 					<oxy:LineSeries ItemsSource="{Binding PointsKinetic}"/>
 				</oxy:Plot.Series>
 			</oxy:Plot>
-			<oxy:Plot  InvalidateFlag="{Binding InvalidateFlag}" Title="Potential"  Margin="10" Grid.Row="2">
+			<oxy:Plot  InvalidateFlag="{Binding InvalidateFlag}" Title="Потенциальная, Дж"  Margin="10" Grid.Row="2">
 				<oxy:Plot.Series>
 					<oxy:LineSeries ItemsSource="{Binding PointsPotential}"/>
+				</oxy:Plot.Series>
+			</oxy:Plot>
+			<oxy:Plot  InvalidateFlag="{Binding InvalidateFlag}" Title="Температура системы, К"  Margin="10" Grid.Row="3">
+				<oxy:Plot.Series>
+					<oxy:LineSeries ItemsSource="{Binding PointsTemperature}"/>
 				</oxy:Plot.Series>
 			</oxy:Plot>
 		</Grid>
