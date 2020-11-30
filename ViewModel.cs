@@ -98,8 +98,12 @@ namespace MM_IdealGas
 		public List<DataPoint> PointsPotential { get; set; }
 		public List<DataPoint> PointsEnergy { get; set; }
 		public List<DataPoint> PointsTemperature { get; set; }
-		#endregion
 		
+		double kinetic, potential, energy, temperature;
+		double kineticTemp, potentialTemp, energyTemp, temperatureTemp;
+		
+		#endregion
+
 		public ViewModel()
 		{
 
@@ -126,6 +130,15 @@ namespace MM_IdealGas
 			PointsEnergy = new List<DataPoint>();
 			PointsTemperature = new List<DataPoint>();
 
+			kinetic = 0;
+			potential = 0;
+			energy = 0;
+			temperature = 0;
+			kineticTemp = 0;
+			potentialTemp = 0;
+			energyTemp = 0;
+			temperatureTemp = 0;
+			
 			Generate = new RelayCommand(o =>
 			{
 				//сброс таймера
@@ -141,6 +154,15 @@ namespace MM_IdealGas
 				PointsPotential.Clear();
 				PointsEnergy.Clear();
 				PointsTemperature.Clear();
+				
+				kinetic = 0;
+				potential = 0;
+				energy = 0;
+				temperature = 0;
+				kineticTemp = 0;
+				potentialTemp = 0;
+				energyTemp = 0;
+				temperatureTemp = 0;
 			});
 
 			Start = new RelayCommand(o =>
@@ -173,11 +195,25 @@ namespace MM_IdealGas
 			
 			Particles = _physical.GetParticlesCollection();
 
-			var kinetic = CalсKinetic();
-			var potential = _physical.GetPotential();
-			var energy = kinetic*1e10 + potential*1e10;
-			energy /= 1e10;
-			var temperature = CalcTemperature(kinetic);
+			kineticTemp += CalсKinetic();
+			potentialTemp += _physical.GetPotential();
+			energyTemp = kinetic*1e10 + potential*1e10;
+			//energyTemp /= 1e10;
+			temperatureTemp += CalcTemperature(kinetic);
+
+			if (_timerTick % 10 == 0)
+			{
+				const double step = 10.0;
+				kinetic = kineticTemp / step;
+				potential = potentialTemp / step;
+				energy = energyTemp / step / 1e10;
+				temperature = temperatureTemp / step;
+
+				kineticTemp = 0;
+				potentialTemp = 0;
+				energyTemp = 0;
+				temperatureTemp = 0;
+			}
 			
 			PointsKinetic.Add(new DataPoint(_timerTick, kinetic));
 			PointsPotential.Add(new DataPoint(_timerTick, potential));
