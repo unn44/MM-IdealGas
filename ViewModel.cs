@@ -32,7 +32,7 @@ namespace MM_IdealGas
 		public bool StartOrStop { get; set; } = true;
 
 		public string StopOrStartName => StartOrStop ? "Запустить" : "Остановить";
-		private string _countSteps;
+		private string _countSteps, _maxVelText;
 		public string CountSteps
 		{
 			get => _countSteps;
@@ -40,6 +40,16 @@ namespace MM_IdealGas
 			{
 
 				_countSteps = value;
+				OnPropertyChanged();
+			}
+		}
+		
+		public string MaxVelText
+		{
+			get => _maxVelText;
+			set
+			{
+				_maxVelText = value;
 				OnPropertyChanged();
 			}
 		}
@@ -72,6 +82,9 @@ namespace MM_IdealGas
 		
 		public bool MaxwellMode { get; set; } = false;
 
+		private double _maxVel, _deltaVel; //MAXWELL
+		private double[] _maxwell = new double[50];
+
 		public ICommand Generate { get; set; }
 		public ICommand Start { get; set; }
 
@@ -88,7 +101,7 @@ namespace MM_IdealGas
 		}
 
 		#region Charts
-		private int _invalidateFlag;
+		private int _invalidateFlag, _invalidateFlagMaxwell;
 		public int InvalidateFlag
 		{
 			get => _invalidateFlag;
@@ -98,11 +111,27 @@ namespace MM_IdealGas
 				OnPropertyChanged();
 			}
 		}
+		
+		public int InvalidateFlagMaxwell
+		{
+			get => _invalidateFlagMaxwell;
+			set
+			{
+				_invalidateFlagMaxwell = value;
+				OnPropertyChanged();
+			}
+		}
 		public List<DataPoint> PointsKinetic { get; set; }
 		public List<DataPoint> PointsPotential { get; set; }
 		public List<DataPoint> PointsEnergy { get; set; }
 		public List<DataPoint> PointsTemperature { get; set; }
 		
+		public List<DataPoint> PointsMaxwell1 { get; set; }
+		public List<DataPoint> PointsMaxwell2 { get; set; }
+		public List<DataPoint> PointsMaxwell3 { get; set; }
+		public List<DataPoint> PointsMaxwell4 { get; set; }
+		public List<DataPoint> PointsMaxwell5 { get; set; }
+
 		double kinetic, potential, energy, temperature;
 		double kineticTemp, potentialTemp, energyTemp, temperatureTemp;
 
@@ -114,7 +143,9 @@ namespace MM_IdealGas
 			_timer = new Timer(5); //??
 			_timer.Elapsed += OnTimedEvent;
 			_timerTick = 0;
+			_maxVel = 0.0;
 			CountSteps = $"Количество шагов: {_timerTick} ";
+			MaxVelText = "";
 
 			_physical = new Physical();
 			_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
@@ -133,6 +164,12 @@ namespace MM_IdealGas
 			PointsPotential = new List<DataPoint>();
 			PointsEnergy = new List<DataPoint>();
 			PointsTemperature = new List<DataPoint>();
+			
+			PointsMaxwell1 = new List<DataPoint>();
+			PointsMaxwell2 = new List<DataPoint>();
+			PointsMaxwell3 = new List<DataPoint>();
+			PointsMaxwell4 = new List<DataPoint>();
+			PointsMaxwell5 = new List<DataPoint>();
 
 			kinetic = 0;
 			potential = 0;
@@ -143,10 +180,15 @@ namespace MM_IdealGas
 			energyTemp = 0;
 			temperatureTemp = 0;
 			
-			Generate = new RelayCommand(o => { Generation(); });
+			Generate = new RelayCommand(o =>
+			{
+				OnPropertyChanged(nameof(MaxwellMode));
+				Generation();
+			});
 
 			Start = new RelayCommand(o =>
 			{
+				OnPropertyChanged(nameof(MaxwellMode));
 				SetTimer();
 			});
 		}
@@ -155,7 +197,9 @@ namespace MM_IdealGas
 		{
 			//сброс таймера
 			_timerTick = 0;
+			_maxVel = 0.0;
 			CountSteps = $"Количество шагов: {_timerTick} ";
+			MaxVelText = "";
 			if (!StartOrStop) SetTimer();
 			_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
 			_physical.GenerateInitState();
@@ -175,6 +219,8 @@ namespace MM_IdealGas
 			potentialTemp = 0;
 			energyTemp = 0;
 			temperatureTemp = 0;
+
+			for (var i = 0; i < 50; i++) _maxwell[i] = 0.0;
 		}
 
 		private void SetTimer()
@@ -230,8 +276,7 @@ namespace MM_IdealGas
 				potentialTemp = 0;
 				energyTemp = 0;
 				temperatureTemp = 0;
-
-
+				
 				PointsKinetic.Add(new DataPoint(_timerTick, kinetic));
 				PointsPotential.Add(new DataPoint(_timerTick, potential));
 				PointsEnergy.Add(new DataPoint(_timerTick, energy));
@@ -256,17 +301,29 @@ namespace MM_IdealGas
 			
 			if (_timerTick < 500)
 			{
-				//TODO: find max speed.
+				var current = Particles.Max(par => Math.Sqrt(par.Ux * par.Ux + par.Uy * par.Uy));
+				if (current > _maxVel) _maxVel = current;
+				MaxVelText = $"Макс. скорость: {_maxVel} ";
 			}
 
 			if (_timerTick == 500)
 			{
-				//TODO: process the results of 500 steps.
+				_deltaVel = 2 * _maxVel / 50.0;
 			}
 
-			if (_timerTick > 500)
+			if (_timerTick > 500 && _timerTick <= MaxwellSteps +500)
 			{
-				//TODO: main processor.
+				//main processor.
+				foreach (var par in Particles)
+				{
+					var velocity = Math.Sqrt(par.Ux * par.Ux + par.Uy * par.Uy);
+					for (var i = 0; i < 50; i++)
+					{
+						if (!(_deltaVel * i <= velocity) || !(velocity < _deltaVel * (i + 1))) continue;
+						_maxwell[i] += 1.0;
+						break;
+					}
+				}
 			}
 
 			//draw temperature chart.
@@ -277,13 +334,29 @@ namespace MM_IdealGas
 				const double step = 10.0;
 				temperature = temperatureTemp / step;
 				temperatureTemp = 0;
+
+				PointsTemperature.Add(new DataPoint(_timerTick, temperature));
 			}
-			PointsTemperature.Add(new DataPoint(_timerTick, temperature));
-			if (PointsTemperature.Count > 500) PointsTemperature.RemoveRange(0, 1);
+
+			if (PointsTemperature.Count > 100) PointsTemperature.RemoveRange(0, 1);
 			
-			if (_timerTick == MaxwellSteps)
+			if (_timerTick == MaxwellSteps +500)
 			{
-				//TODO: draw (create new series and add points to it)
+				//draw (create new series and add points to it)
+
+				List<DataPoint> chart;
+				if (PointsMaxwell1.Count == 0) chart = PointsMaxwell1;
+				else if (PointsMaxwell2.Count == 0) chart = PointsMaxwell2;
+				else if (PointsMaxwell3.Count == 0) chart = PointsMaxwell3;
+				else if (PointsMaxwell4.Count == 0) chart = PointsMaxwell4;
+				else chart = PointsMaxwell5;
+				
+				for (var i = 0; i < 50; i++)
+				{
+					InvalidateFlagMaxwell++;
+					_maxwell[i] /= ParticleNumber;
+					chart.Add(new DataPoint(i, _maxwell[i]));
+				}
 				
 				//turn off the timer
 				_timer.Enabled = false;
@@ -292,7 +365,7 @@ namespace MM_IdealGas
 				OnPropertyChanged(nameof(StartOrStop));
 			}
 		}
-		
+
 		private double CalсKinetic()
 		{
 			var avgU2 = Particles.Sum(par => par.Ux * par.Ux + par.Uy * par.Uy);
@@ -300,17 +373,6 @@ namespace MM_IdealGas
 
 			const double mass = 39.948 * 1.66054e-27; // константа массы частицы
 			return mass * avgU2 / 2.0;
-		}
-
-		private double CalcPotential()
-		{
-			//return Particles.Sum(par => Math.Sqrt(par.Fx * par.Fx + par.Fy * par.Fy));
-			return -1;
-		}
-
-		private double FindMaxVelocityOnStep()
-		{
-			return Particles.Max(par => par.Ux * par.Ux + par.Uy * par.Uy);
 		}
 		
 		private double CalcTemperature(double kinetic)
