@@ -209,11 +209,14 @@ namespace MM_IdealGas
 
 			Particles = _physical.GetParticlesCollection();
 
-			kineticTemp += CalсKinetic();
-			potentialTemp += _physical.GetPotential();
-			energyTemp = kineticTemp/* ?? */ * 1e10 + potentialTemp /* ?? */ * 1e10;
+			var kineticNow = CalсKinetic();
+			var potentialNow = _physical.GetPotential();
+			
+			kineticTemp += kineticNow;
+			potentialTemp += potentialNow;
+			energyTemp += kineticNow * 1e10 + potentialNow * 1e10;
 			//energyTemp /= 1e10;
-			temperatureTemp += CalcTemperature(kineticTemp /* ?? */ );
+			temperatureTemp += CalcTemperature(kineticNow);
 
 			if (_timerTick % 10 == 0)
 			{
@@ -266,14 +269,11 @@ namespace MM_IdealGas
 
 			//draw temperature chart.
 			InvalidateFlag++; // для OxyPlot
-			kineticTemp += CalсKinetic();
-			temperatureTemp += CalcTemperature(kineticTemp/* ?? */ );
+			temperatureTemp += CalcTemperature(CalсKinetic());
 			if (_timerTick % 10 == 0)
 			{
 				const double step = 10.0;
 				temperature = temperatureTemp / step;
-				
-				kineticTemp = 0;
 				temperatureTemp = 0;
 			}
 			PointsTemperature.Add(new DataPoint(_timerTick, temperature));
