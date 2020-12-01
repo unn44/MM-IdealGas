@@ -60,6 +60,8 @@
 			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}" Title="Энергия системы, Дж" Margin="10" Grid.Row="0">
 				<oxy:Plot.Series>
 					<oxy:LineSeries ItemsSource="{Binding PointsEnergy}"/>
+					<oxy:LineSeries ItemsSource="{Binding PointsKinetic}"/>
+					<oxy:LineSeries ItemsSource="{Binding PointsPotential}"/>
 				</oxy:Plot.Series>
 			</oxy:Plot>
 			<oxy:Plot   InvalidateFlag="{Binding InvalidateFlag}" Title="Кинетическая, Дж" Margin="10" Grid.Row="1">
