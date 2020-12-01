@@ -29,9 +29,9 @@ namespace MM_IdealGas
 
 		private Physical _physical;
 
-		private bool startOrStop = true;
+		public bool StartOrStop { get; set; } = true;
 
-		public string StopOrStartName => startOrStop ? "Запустить" : "Остановить";
+		public string StopOrStartName => StartOrStop ? "Запустить" : "Остановить";
 		private string _countSteps;
 		public string CountSteps
 		{
@@ -67,6 +67,10 @@ namespace MM_IdealGas
 		public double CoeffR2 { get; set; } = 1.8;
 		public double TimeDelta { get; set; } = 2e-14;
 		public int TimeCounts { get; set; } = 500;
+		
+		public int MaxwellSteps { get; set; } = 15000;
+		
+		public bool MaxwellMode { get; set; } = false;
 
 		public ICommand Generate { get; set; }
 		public ICommand Start { get; set; }
@@ -101,7 +105,7 @@ namespace MM_IdealGas
 		
 		double kinetic, potential, energy, temperature;
 		double kineticTemp, potentialTemp, energyTemp, temperatureTemp;
-		
+
 		#endregion
 
 		public ViewModel()
@@ -139,31 +143,7 @@ namespace MM_IdealGas
 			energyTemp = 0;
 			temperatureTemp = 0;
 			
-			Generate = new RelayCommand(o =>
-			{
-				//сброс таймера
-				_timerTick = 0;
-				CountSteps = $"Количество шагов: {_timerTick} ";
-				if (!startOrStop) SetTimer();
-				_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
-				_physical.GenerateInitState();
-				Particles = _physical.GetParticlesCollection(0);
-				
-				InvalidateFlag = 0;
-				PointsKinetic.Clear();
-				PointsPotential.Clear();
-				PointsEnergy.Clear();
-				PointsTemperature.Clear();
-				
-				kinetic = 0;
-				potential = 0;
-				energy = 0;
-				temperature = 0;
-				kineticTemp = 0;
-				potentialTemp = 0;
-				energyTemp = 0;
-				temperatureTemp = 0;
-			});
+			Generate = new RelayCommand(o => { Generation(); });
 
 			Start = new RelayCommand(o =>
 			{
@@ -171,35 +151,69 @@ namespace MM_IdealGas
 			});
 		}
 
+		private void Generation()
+		{
+			//сброс таймера
+			_timerTick = 0;
+			CountSteps = $"Количество шагов: {_timerTick} ";
+			if (!StartOrStop) SetTimer();
+			_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
+			_physical.GenerateInitState();
+			Particles = _physical.GetParticlesCollection(0);
+
+			InvalidateFlag = 0;
+			PointsKinetic.Clear();
+			PointsPotential.Clear();
+			PointsEnergy.Clear();
+			PointsTemperature.Clear();
+
+			kinetic = 0;
+			potential = 0;
+			energy = 0;
+			temperature = 0;
+			kineticTemp = 0;
+			potentialTemp = 0;
+			energyTemp = 0;
+			temperatureTemp = 0;
+		}
+
 		private void SetTimer()
 		{
-			if (startOrStop)
+			if (StartOrStop)
 			{
 				_timer.AutoReset = true;
 				_timer.Enabled = true;
-				startOrStop = false;
+				StartOrStop = false;
 				OnPropertyChanged(nameof(StopOrStartName));
+				OnPropertyChanged(nameof(StartOrStop));
 			}
 			else
 			{
 				_timer.Enabled = false;
-				startOrStop = true;
+				StartOrStop = true;
 				OnPropertyChanged(nameof(StopOrStartName));
+				OnPropertyChanged(nameof(StartOrStop));
 			}
 		}
 
 		private void OnTimedEvent(object source, ElapsedEventArgs e)
 		{
+			if (!MaxwellMode) NormalProcessor();
+			else MaxwellProcessor();
+		}
+
+		private void NormalProcessor()
+		{
 			InvalidateFlag++; // для OxyPlot
 			_timerTick++;
-			
+
 			Particles = _physical.GetParticlesCollection();
 
 			kineticTemp += CalсKinetic();
 			potentialTemp += _physical.GetPotential();
-			energyTemp = kinetic*1e10 + potential*1e10;
+			energyTemp = kineticTemp/* ?? */ * 1e10 + potentialTemp /* ?? */ * 1e10;
 			//energyTemp /= 1e10;
-			temperatureTemp += CalcTemperature(kinetic);
+			temperatureTemp += CalcTemperature(kineticTemp /* ?? */ );
 
 			if (_timerTick % 10 == 0)
 			{
@@ -214,7 +228,7 @@ namespace MM_IdealGas
 				energyTemp = 0;
 				temperatureTemp = 0;
 			}
-			
+
 			PointsKinetic.Add(new DataPoint(_timerTick, kinetic));
 			PointsPotential.Add(new DataPoint(_timerTick, potential));
 			PointsEnergy.Add(new DataPoint(_timerTick, energy));
@@ -224,10 +238,59 @@ namespace MM_IdealGas
 			if (PointsPotential.Count > 500) PointsPotential.RemoveRange(0, 1);
 			if (PointsEnergy.Count > 500) PointsEnergy.RemoveRange(0, 1);
 			if (PointsTemperature.Count > 500) PointsTemperature.RemoveRange(0, 1);
-			
+
 			CountSteps = $"Количество шагов: {_timerTick} ";
 		}
 
+		private void MaxwellProcessor()
+		{
+			_timerTick++;
+			CountSteps = $"Количество шагов: {_timerTick} ";
+
+			Particles = _physical.GetParticlesCollection();
+			
+			if (_timerTick < 500)
+			{
+				//TODO: find max speed.
+			}
+
+			if (_timerTick == 500)
+			{
+				//TODO: process the results of 500 steps.
+			}
+
+			if (_timerTick > 500)
+			{
+				//TODO: main processor.
+			}
+
+			//draw temperature chart.
+			InvalidateFlag++; // для OxyPlot
+			kineticTemp += CalсKinetic();
+			temperatureTemp += CalcTemperature(kineticTemp/* ?? */ );
+			if (_timerTick % 10 == 0)
+			{
+				const double step = 10.0;
+				temperature = temperatureTemp / step;
+				
+				kineticTemp = 0;
+				temperatureTemp = 0;
+			}
+			PointsTemperature.Add(new DataPoint(_timerTick, temperature));
+			if (PointsTemperature.Count > 500) PointsTemperature.RemoveRange(0, 1);
+			
+			if (_timerTick == MaxwellSteps)
+			{
+				//TODO: draw (create new series and add points to it)
+				
+				//turn off the timer
+				_timer.Enabled = false;
+				StartOrStop = true;
+				OnPropertyChanged(nameof(StopOrStartName));
+				OnPropertyChanged(nameof(StartOrStop));
+			}
+		}
+		
 		private double CalсKinetic()
 		{
 			var avgU2 = Particles.Sum(par => par.Ux * par.Ux + par.Uy * par.Uy);
@@ -243,6 +306,11 @@ namespace MM_IdealGas
 			return -1;
 		}
 
+		private double FindMaxVelocityOnStep()
+		{
+			return Particles.Max(par => par.Ux * par.Ux + par.Uy * par.Uy);
+		}
+		
 		private double CalcTemperature(double kinetic)
 		{
 			const double k = 1.38 * 1e-23; //Дж/К
