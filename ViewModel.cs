@@ -230,17 +230,19 @@ namespace MM_IdealGas
 				potentialTemp = 0;
 				energyTemp = 0;
 				temperatureTemp = 0;
+
+
+				PointsKinetic.Add(new DataPoint(_timerTick, kinetic));
+				PointsPotential.Add(new DataPoint(_timerTick, potential));
+				PointsEnergy.Add(new DataPoint(_timerTick, energy));
+				PointsTemperature.Add(new DataPoint(_timerTick, temperature));
 			}
 
-			PointsKinetic.Add(new DataPoint(_timerTick, kinetic));
-			PointsPotential.Add(new DataPoint(_timerTick, potential));
-			PointsEnergy.Add(new DataPoint(_timerTick, energy));
-			PointsTemperature.Add(new DataPoint(_timerTick, temperature));
-
-			if (PointsKinetic.Count > 500) PointsKinetic.RemoveRange(0, 1);
-			if (PointsPotential.Count > 500) PointsPotential.RemoveRange(0, 1);
-			if (PointsEnergy.Count > 500) PointsEnergy.RemoveRange(0, 1);
-			if (PointsTemperature.Count > 500) PointsTemperature.RemoveRange(0, 1);
+			if (PointsKinetic.Count > 100) PointsKinetic.RemoveRange(0, 1);
+			if (PointsPotential.Count > 100) PointsPotential.RemoveRange(0, 1);
+			if (PointsEnergy.Count > 100) PointsEnergy.RemoveRange(0, 1);
+			if (PointsTemperature.Count > 100) PointsTemperature.RemoveRange(0, 1);
+			
 
 			CountSteps = $"Количество шагов: {_timerTick} ";
 		}
