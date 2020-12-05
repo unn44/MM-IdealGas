@@ -107,7 +107,7 @@
 					<oxy:LineSeries ItemsSource="{Binding PointsTemperature}"/>
 				</oxy:Plot.Series>
 			</oxy:Plot>
-			<oxy:Plot  InvalidateFlag="{Binding InvalidateFlagMaxwell}" Title="Распределения Максвелла"  Margin="10" Height="210">
+			<oxy:Plot  InvalidateFlag="{Binding InvalidateFlagMaxwell}" Title="Распределения Максвелла при одной Т"  Margin="10" Height="310">
 				<oxy:Plot.Style>
 					<Style TargetType="{x:Type oxy:Plot}">
 						<Style.Triggers>
@@ -126,6 +126,26 @@
 					<oxy:LineSeries ItemsSource="{Binding PointsMaxwell3}"/>
 					<oxy:LineSeries ItemsSource="{Binding PointsMaxwell4}"/>
 					<oxy:LineSeries ItemsSource="{Binding PointsMaxwell5}"/>
+				</oxy:Plot.Series>
+			</oxy:Plot>
+			
+			<oxy:Plot  InvalidateFlag="{Binding InvalidateFlagMaxwellAvg}" Title="Распределения Максвелла при разных Т"  Margin="10" Height="310">
+				<oxy:Plot.Style>
+					<Style TargetType="{x:Type oxy:Plot}">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding MaxwellMode}" Value="True">
+								<Setter Property="Visibility" Value="Visible"/>
+							</DataTrigger>
+							<DataTrigger Binding="{Binding MaxwellMode}" Value="False">
+								<Setter Property="Visibility" Value="Collapsed"/>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</oxy:Plot.Style>
+				<oxy:Plot.Series>
+					<oxy:LineSeries ItemsSource="{Binding PointsMaxwellAvg1}"/>
+					<oxy:LineSeries ItemsSource="{Binding PointsMaxwellAvg2}"/>
+					<oxy:LineSeries ItemsSource="{Binding PointsMaxwellAvg3}"/>
 				</oxy:Plot.Series>
 			</oxy:Plot>
 		</StackPanel>
@@ -163,9 +183,37 @@
 			          IsEnabled="{Binding StartOrStop}"/>
 			
 			<Button Content="Сгенерировать" Command="{Binding Generate}" Margin="0,10,0,0"/>
-			<Button Content="{Binding StopOrStartName,UpdateSourceTrigger=PropertyChanged,Mode=OneWay}" Command="{Binding Start}" Margin="0,10,0,0"/>
+			<Button Content="{Binding StopOrStartName,UpdateSourceTrigger=PropertyChanged,Mode=OneWay}" Command="{Binding Start}" Margin="0,10,0,0">
+				<Button.Style>
+					<Style TargetType="{x:Type Button}">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding ReadyToAvg}" Value="True">
+								<Setter Property="IsEnabled" Value="False"/>
+							</DataTrigger>
+							<DataTrigger Binding="{Binding ReadyToAvg}" Value="False">
+								<Setter Property="IsEnabled" Value="True"/>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</Button.Style>
+			</Button>
 			<Label FontWeight="DemiBold" FontSize="14"  Content="{Binding CountSteps, UpdateSourceTrigger=PropertyChanged}" Margin="0,10,0,0"/>
+			<Label FontWeight="DemiBold" FontSize="14"  Content="{Binding CountMaxwellText, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,0"/>
 			<Label FontWeight="DemiBold" FontSize="14"  Content="{Binding MaxVelText, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,0"/>
+			<Button Content="Усреднить и построить" Command="{Binding Average}" Margin="0,10,0,0">
+				<Button.Style>
+					<Style TargetType="{x:Type Button}">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding ReadyToAvg}" Value="True">
+								<Setter Property="Visibility" Value="Visible"/>
+							</DataTrigger>
+							<DataTrigger Binding="{Binding ReadyToAvg}" Value="False">
+								<Setter Property="Visibility" Value="Collapsed"/>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</Button.Style>
+			</Button>
 		</StackPanel>
 	</Grid>
 </Window>

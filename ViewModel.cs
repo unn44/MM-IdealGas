@@ -32,7 +32,7 @@ namespace MM_IdealGas
 		public bool StartOrStop { get; set; } = true;
 
 		public string StopOrStartName => StartOrStop ? "Запустить" : "Остановить";
-		private string _countSteps, _maxVelText;
+		private string _countSteps, _maxVelText, _countMaxwellText;
 		public string CountSteps
 		{
 			get => _countSteps;
@@ -50,6 +50,16 @@ namespace MM_IdealGas
 			set
 			{
 				_maxVelText = value;
+				OnPropertyChanged();
+			}
+		}
+		
+		public string CountMaxwellText
+		{
+			get => _countMaxwellText;
+			set
+			{
+				_countMaxwellText = value;
 				OnPropertyChanged();
 			}
 		}
@@ -81,12 +91,15 @@ namespace MM_IdealGas
 		public int MaxwellSteps { get; set; } = 15000;
 		
 		public bool MaxwellMode { get; set; } = false;
+		public bool ReadyToAvg { get; set; } = false;
 
 		private double _maxVel, _deltaVel; //MAXWELL
+		private int _countMaxwell = 0; //MAXWELL
 		private double[] _maxwell = new double[50];
 
 		public ICommand Generate { get; set; }
 		public ICommand Start { get; set; }
+		public ICommand Average { get; set; }
 
 		private ObservableCollection<Particle> _particles;
 		public ObservableCollection<Particle> Particles
@@ -101,7 +114,7 @@ namespace MM_IdealGas
 		}
 
 		#region Charts
-		private int _invalidateFlag, _invalidateFlagMaxwell;
+		private int _invalidateFlag, _invalidateFlagMaxwell, _invalidateFlagMaxwellAvg;
 		public int InvalidateFlag
 		{
 			get => _invalidateFlag;
@@ -121,6 +134,16 @@ namespace MM_IdealGas
 				OnPropertyChanged();
 			}
 		}
+		
+		public int InvalidateFlagMaxwellAvg
+		{
+			get => _invalidateFlagMaxwellAvg;
+			set
+			{
+				_invalidateFlagMaxwellAvg = value;
+				OnPropertyChanged();
+			}
+		}
 		public List<DataPoint> PointsKinetic { get; set; }
 		public List<DataPoint> PointsPotential { get; set; }
 		public List<DataPoint> PointsEnergy { get; set; }
@@ -131,6 +154,10 @@ namespace MM_IdealGas
 		public List<DataPoint> PointsMaxwell3 { get; set; }
 		public List<DataPoint> PointsMaxwell4 { get; set; }
 		public List<DataPoint> PointsMaxwell5 { get; set; }
+		
+		public List<DataPoint> PointsMaxwellAvg1 { get; set; }
+		public List<DataPoint> PointsMaxwellAvg2 { get; set; }
+		public List<DataPoint> PointsMaxwellAvg3 { get; set; }
 
 		double kinetic, potential, energy, temperature;
 		double kineticTemp, potentialTemp, energyTemp, temperatureTemp;
@@ -146,6 +173,7 @@ namespace MM_IdealGas
 			_maxVel = 0.0;
 			CountSteps = $"Количество шагов: {_timerTick} ";
 			MaxVelText = "";
+			CountMaxwellText = MaxwellMode ? $"Распределения: {_countMaxwell}/5" : "";
 
 			_physical = new Physical();
 			_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
@@ -160,6 +188,7 @@ namespace MM_IdealGas
 			var potential = CalcPotential();
 			var energy = kinetic + potential;*/
 			InvalidateFlag = 0;
+			InvalidateFlagMaxwellAvg = 0;
 			PointsKinetic = new List<DataPoint>();
 			PointsPotential = new List<DataPoint>();
 			PointsEnergy = new List<DataPoint>();
@@ -170,6 +199,10 @@ namespace MM_IdealGas
 			PointsMaxwell3 = new List<DataPoint>();
 			PointsMaxwell4 = new List<DataPoint>();
 			PointsMaxwell5 = new List<DataPoint>();
+			
+			PointsMaxwellAvg1 = new List<DataPoint>();
+			PointsMaxwellAvg2 = new List<DataPoint>();
+			PointsMaxwellAvg3 = new List<DataPoint>();
 
 			kinetic = 0;
 			potential = 0;
@@ -191,6 +224,11 @@ namespace MM_IdealGas
 				OnPropertyChanged(nameof(MaxwellMode));
 				SetTimer();
 			});
+			
+			Average = new RelayCommand(o =>
+			{
+				Averaging();
+			});
 		}
 
 		private void Generation()
@@ -200,6 +238,7 @@ namespace MM_IdealGas
 			_maxVel = 0.0;
 			CountSteps = $"Количество шагов: {_timerTick} ";
 			MaxVelText = "";
+			CountMaxwellText = MaxwellMode ? $"Распределения: {_countMaxwell}/5" : "";
 			if (!StartOrStop) SetTimer();
 			_physical.InitAll(ParticleNumber, MarginInit, U0MaxInit, TimeDelta, TimeCounts, CoeffR1, CoeffR2);
 			_physical.GenerateInitState();
@@ -242,6 +281,38 @@ namespace MM_IdealGas
 			}
 		}
 
+		private void Averaging()
+		{
+			List<DataPoint> chart;
+			if (PointsMaxwellAvg1.Count == 0) chart = PointsMaxwellAvg1;
+			else if (PointsMaxwellAvg2.Count == 0) chart = PointsMaxwellAvg2;
+			else chart = PointsMaxwellAvg3;
+			
+			for (var i = 0; i < 50; i++)
+			{
+				InvalidateFlagMaxwellAvg++;
+				var res = PointsMaxwell1[i].Y + PointsMaxwell2[i].Y + PointsMaxwell3[i].Y + PointsMaxwell4[i].Y +
+				          PointsMaxwell5[i].Y;
+				res /= 5.0;
+				chart.Add(new DataPoint(i, res));
+			}
+
+			_countMaxwell = 0;
+			CountMaxwellText = $"Распределения: {_countMaxwell}/5";
+			
+			if (PointsMaxwellAvg3.Count != 0) return;
+			
+			InvalidateFlagMaxwell = 0;
+			PointsMaxwell1.Clear();
+			PointsMaxwell2.Clear();
+			PointsMaxwell3.Clear();
+			PointsMaxwell4.Clear();
+			PointsMaxwell5.Clear();
+
+			ReadyToAvg = false;
+			OnPropertyChanged(nameof(ReadyToAvg));
+		}
+		
 		private void OnTimedEvent(object source, ElapsedEventArgs e)
 		{
 			if (!MaxwellMode) NormalProcessor();
@@ -356,6 +427,13 @@ namespace MM_IdealGas
 					InvalidateFlagMaxwell++;
 					_maxwell[i] /= ParticleNumber;
 					chart.Add(new DataPoint(i, _maxwell[i]));
+				}
+
+				CountMaxwellText = $"Распределения: {++_countMaxwell}/5";
+				if (_countMaxwell == 5)
+				{
+					ReadyToAvg = true;
+					OnPropertyChanged(nameof(ReadyToAvg));
 				}
 				
 				//turn off the timer
